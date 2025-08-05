@@ -21,15 +21,16 @@
                                     </div>
                                     <div class="form-group mb-30 col-md-6 col-sm-12 col-xs-12">
                                         <label class="control-label mb-10 text-left">Sexo</label>
+                                        	
                                         <div class="radio radio-primary">
-                                            <input type="radio" name="txtsexo" id="radio1" value="m" @if($fila->sexo_paciente=="m") checked @endif>
-                                            <label for="radio1">
+                                            <input type="radio" name="txtsexo" id="radio1-{{$fila->id}}" value="m" @if($fila->sexo_paciente=="m") checked @endif >
+                                            <label for="radio1-{{$fila->id}}">
                                                 Masculino
                                             </label>
                                         </div>
                                         <div class="radio radio-info">
-                                            <input type="radio" name="txtsexo" id="radio2" value="f" @if($fila->sexo_paciente=="f") checked @endif >
-                                            <label for="radio2">
+                                            <input type="radio" name="txtsexo" id="radio2-{{$fila->id}}" value="f" @if($fila->sexo_paciente=="f") checked @endif  >
+                                            <label for="radio2-{{$fila->id}}">
                                                 Femenino
                                             </label>
                                         </div>	

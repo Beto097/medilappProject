@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ResultadoLaboratorio;
 use Session;
-use Auth;
 
 class resultadoController extends Controller
 {
@@ -60,148 +59,150 @@ class resultadoController extends Controller
     }
 
     public function examenes($id){
-       
-        if (!Auth::user()) {
-            $current = url()->current();
-            Session::put('url', $current); 
+        if (Session::has('usuario_rol_id')) {
+            $pantallas_menu = Controller::urlsPantallasXUsuario();
+                
+                if (in_array('/ordenesLaboratorio',$pantallas_menu) or in_array('/orden_laboratorio',$pantallas_menu)){//solo modificar la ruta buscar las rutas en web.php o el la tabla pantallas
+                    $rol = rol::find(Session::get('usuario_rol_id'));
+                    
+                    if ($rol->tipo_rol != '2') {
+                        if($orden = orden_laboratorio::where('id',$id)->where('estado_orden_laboratorio','<>','Eliminado')->count()>0){
+
+                            $orden = orden_laboratorio::find($id);
+                        
+                            $resultado = examen_orden_laboratorio::where('orden_laboratorio_id',$id)->where('padre','<',1)->get();
+                            
+                            $lista_examen = array();
+                            foreach($resultado as $resul){
+                                array_push($lista_examen,$resul->examen_id);
+                            }
+                            $examenes = examen::whereIn('id',$lista_examen)->get();
+                            
+                            $lista_examenes = array();
+                            foreach($examenes as $examen){
+                            
+                                if($examen->es_externo==0){
+                                    array_push($lista_examenes,$examen->tipo_examen_id);
+                                }
+                            }
+                            $lista_tipo = array();
+                            foreach(array_unique($lista_examenes) as $tipo){
+                                $i = 0;
+                                foreach($lista_examenes as $exam){
+
+                                    if($exam==$tipo){
+                                        $i=$i+1;
+                                    }
+                                }
+                                if($i>1){
+                                    array_push($lista_tipo,$tipo);
+                                }
+                            }
+
+                            
+
+                            $tipos_examen =  tipo_examen::whereIn('id',$lista_tipo)->get();
+                            
+                            $count = 0;
+                            
+                            if(sizeof($lista_examenes)==sizeof($lista_tipo)){
+                                $count = 1;
+                            }
+                            
+                            $permisos = Controller::permisos('resultado');
+                                               
+                            return view('resultado.examenes', ["resultado"=>$resultado,
+                                                                "orden"=>$orden,
+                                                                "tipos_examen"=>$tipos_examen,
+                                                                "count"=>$count,
+                                                                'permisos'=>$permisos]);
+                        }else{
+                            return redirect(route('resultado.index'))->withErrors(['status' => "El examen no existe fue eliminado" ]);
+                        }
+                    }else{
+                        
+                        if($orden = orden_laboratorio::where('id',$id)->where('estado_orden_laboratorio','<>','Eliminado')->count()>0){
+
+                            $orden = orden_laboratorio::find($id);
+                            $rol = rol::find(Session::get('usuario_rol_id'));
+                           
+                            if ($rol->tipo_rol==2) {
+                                if ($rol->nombre_rol=='Paciente') {                                    
+                                    $usuario = usuario::find(Session::get('usuario_log_id'));
+                                    $paciente = paciente::where('identificacion_paciente',$usuario->nombre_usuario)->first();
+                                    if($orden->paciente_id != $paciente->id){
+                                        return redirect()->back();
+                                    }
+                                    
+                                }else{
+
+                                    if($orden->externo_id != Session::get('usuario_log_id')){
+                                        return redirect()->back();
+                                    }
+
+                                }
+                                
+                            }
+                            
+                            
+                            $resultado = examen_orden_laboratorio::where('orden_laboratorio_id',$id)->where('padre','<',1)->get();
+                            
+                            $lista_examen = array();
+                            foreach($resultado as $resul){
+                                array_push($lista_examen,$resul->examen_id);
+                            }
+                            $examenes = examen::whereIn('id',$lista_examen)->get();
+                            
+                            $lista_examenes = array();
+                            foreach($examenes as $examen){
+                            
+                                if($examen->es_externo==0){
+                                    array_push($lista_examenes,$examen->tipo_examen_id);
+                                }
+                            }
+                            $lista_tipo = array();
+                            foreach(array_unique($lista_examenes) as $tipo){
+                                $i = 0;
+                                foreach($lista_examenes as $exam){
+
+                                    if($exam==$tipo){
+                                        $i=$i+1;
+                                    }
+                                }
+                                if($i>1){
+                                    array_push($lista_tipo,$tipo);
+                                }
+                            }
+
+                            
+
+                            $tipos_examen =  tipo_examen::whereIn('id',$lista_tipo)->get();
+                            
+                            $count = 0;
+                            
+                            if(sizeof($lista_examenes)==sizeof($lista_tipo)){
+                                $count = 1;
+                            }
+                            
+                            $permisos = Controller::permisos('resultado');
+                                               
+                            return view('resultado.examenes', ["resultado"=>$resultado,
+                                                                "orden"=>$orden,
+                                                                "tipos_examen"=>$tipos_examen,
+                                                                "count"=>$count,
+                                                                'permisos'=>$permisos]);
+                        }else{
+                            return redirect(route('resultado.index'))->withErrors(['status' => "El examen no existe fue eliminado" ]);
+                        }
+                    }
+                }
+            
+              
+            return redirect(route('index'));
+            
+        }else{
             return redirect(route('login.index'));
         }
-                
-        if (!Auth::user()->permisos('orden_laboratorio','ver')){
-            
-            return redirect(route('index'));
-        }
-
-        $rol = rol::find(Auth::user()->rol_id);
-        
-        if ($rol->tipo_rol != '2') {
-            if($orden = orden_laboratorio::where('id',$id)->where('estado_orden_laboratorio','<>','Eliminado')->count()>0){
-
-                $orden = orden_laboratorio::find($id);
-            
-                $resultado = examen_orden_laboratorio::where('orden_laboratorio_id',$id)->where('padre','<',1)->get();
-                
-                $lista_examen = array();
-                foreach($resultado as $resul){
-                    array_push($lista_examen,$resul->examen_id);
-                }
-                $examenes = examen::whereIn('id',$lista_examen)->get();
-                
-                $lista_examenes = array();
-                foreach($examenes as $examen){
-                
-                    if($examen->es_externo==0){
-                        array_push($lista_examenes,$examen->tipo_examen_id);
-                    }
-                }
-                $lista_tipo = array();
-                foreach(array_unique($lista_examenes) as $tipo){
-                    $i = 0;
-                    foreach($lista_examenes as $exam){
-
-                        if($exam==$tipo){
-                            $i=$i+1;
-                        }
-                    }
-                    if($i>1){
-                        array_push($lista_tipo,$tipo);
-                    }
-                }
-
-                
-
-                $tipos_examen =  tipo_examen::whereIn('id',$lista_tipo)->get();
-                
-                $count = 0;
-                
-                if(sizeof($lista_examenes)==sizeof($lista_tipo)){
-                    $count = 1;
-                }
-                
-                                    
-                return view('resultado.examenes', ["resultado"=>$resultado,
-                                                    "orden"=>$orden,
-                                                    "tipos_examen"=>$tipos_examen,
-                                                    "count"=>$count
-                                                    ]);
-            }else{
-                return redirect(route('resultado.index'))->withErrors(['status' => "El examen no existe fue eliminado" ]);
-            }
-        }else{
-            
-            if($orden = orden_laboratorio::where('id',$id)->where('estado_orden_laboratorio','<>','Eliminado')->count()>0){
-
-                $orden = orden_laboratorio::find($id);
-                $rol = rol::find(Session::get('usuario_rol_id'));
-                
-                if ($rol->tipo_rol==2) {
-                    if ($rol->nombre_rol=='Paciente') {                                    
-                        $usuario = usuario::find(Session::get('usuario_log_id'));
-                        $paciente = paciente::where('identificacion_paciente',$usuario->nombre_usuario)->first();
-                        if($orden->paciente_id != $paciente->id){
-                            return redirect()->back();
-                        }
-                        
-                    }else{
-
-                        if($orden->externo_id != Session::get('usuario_log_id')){
-                            return redirect()->back();
-                        }
-
-                    }
-                    
-                }
-                
-                
-                $resultado = examen_orden_laboratorio::where('orden_laboratorio_id',$id)->where('padre','<',1)->get();
-                
-                $lista_examen = array();
-                foreach($resultado as $resul){
-                    array_push($lista_examen,$resul->examen_id);
-                }
-                $examenes = examen::whereIn('id',$lista_examen)->get();
-                
-                $lista_examenes = array();
-                foreach($examenes as $examen){
-                
-                    if($examen->es_externo==0){
-                        array_push($lista_examenes,$examen->tipo_examen_id);
-                    }
-                }
-                $lista_tipo = array();
-                foreach(array_unique($lista_examenes) as $tipo){
-                    $i = 0;
-                    foreach($lista_examenes as $exam){
-
-                        if($exam==$tipo){
-                            $i=$i+1;
-                        }
-                    }
-                    if($i>1){
-                        array_push($lista_tipo,$tipo);
-                    }
-                }
-
-                
-
-                $tipos_examen =  tipo_examen::whereIn('id',$lista_tipo)->get();
-                
-                $count = 0;
-                
-                if(sizeof($lista_examenes)==sizeof($lista_tipo)){
-                    $count = 1;
-                }
-                
-                                                    
-                return view('resultado.examenes', ["resultado"=>$resultado,
-                                                    "orden"=>$orden,
-                                                    "tipos_examen"=>$tipos_examen,
-                                                    "count"=>$count]);
-            }else{
-                return redirect(route('resultado.index'))->withErrors(['status' => "El examen no existe fue eliminado" ]);
-            }
-        }
-                
         
     }
     
@@ -595,12 +596,5 @@ class resultadoController extends Controller
         }else{
             return redirect(route('login.index'));
         }
-    }
-
-
-    public function generarOrden($id){
-
-
-
     }
 }

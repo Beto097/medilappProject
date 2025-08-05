@@ -1,7 +1,7 @@
 @extends('plantilla.plantillaDT')
 
 @section('titulo')
-    Usuarios
+    Usuario
 @endsection
 
 @section('css')    
@@ -13,18 +13,24 @@
     <div class="row">
         <br>
         <div class="col-sm-10">
-            <p>Este listado muestra todos los usuarios que se encuentran en el sistema.</p>
+            <p>Este listado muestra todos los usuario en el sistema</p>
         </div>
-        @if (Auth::user()->permisos('usuario','create'))
-            <div class="col-sm-2">
-                <button class="btn btn-primary btn-lable-wrap left-label" id="addNewPaciente" data-toggle="modal" data-target="#addNewUsuarioModal"> <span class="btn-label"><i class="fa fa-folder-o"></i> </span><span class="btn-text">Agregar Usuario</span></button>
+        <div class="col-sm-2">
+            @if (Auth::user()->accesoRuta('/usuario/create'))  
+                <button class="btn btn-primary btn-lable-wrap left-label" id="addNewusuario" data-toggle="modal" data-target="#addNewUsuarioModal">
+                    <span class="btn-label"><i class="fa fa-folder-o"></i> </span><span class="btn-text">
+                        Agregar Usuario
+                    </span>
+                </button>
                 @include('modals.UsuarioModals')
-            </div>
-        @endif
+            @endif
+        </div>
         <br>
         <br>
         <br>
-        @include('plantilla.errores')
+            <div class="col-sm-4 col-sm-offset-8">
+          @include('plantilla.errores')
+        </div>
         <div class="col-sm-12">
             <div class="panel panel-default card-view">
                 <div class="panel-heading">
@@ -39,84 +45,64 @@
                             <div class="table-responsive">
                                 <table id="datable_1" class="table table-hover display  pb-30" cellspacing="0"  style="width:100%">
                                     <thead>
-                                        <tr>
-                                            <th>ID</th>
+                                        <tr>                                                                                   
+                                            <th>Id</th>                                            
+                                            <th>Nombre</th>
+                                            <th>Apellido</th>
                                             <th>Usuario</th>
-                                            <th>Rol</th>
-                                            <th>Estado</th>
-                                            @if (Auth::user()->rol_id==1)
-                                                <th>Compañia</th>
-                                            @endif
                                             <th>Email</th>
+                                            <th>Rol</th>
+                                            <th>Sucursal</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     
                                     <tbody>
                                         @foreach ($resultado as $fila)
-                                            <tr>
-                                                <td scope="row">{{$fila->id}}</td>
-                                                <td>{{$fila->nombre_usuario}}</td>                            
-                                                <td>{{$fila->rol->nombre_rol}}</td>
-                                                @if($fila->estado_usuario == 1)
-                                                    <td>Activo</td>
-                                                @else 
-                                                    <td>Bloqueado</td>
-                                                @endif
-                                                @if (Auth::user()->rol_id==1)
-                                                    @if ($fila->company)
-                                                        <th>{{$fila->company->company_name}}</th>
-                                                    @else
-                                                        <th></th>
-                                                    @endif
-                                                    
-                                                @endif
-                                                <td>{{$fila->email_usuario}}</td>
-                                                
+                                            <tr style="font-size: 90%;">
+                                                <td scope="row">{{$fila->id }}</td>
+                                                <td>{{ $fila->primer_nombre_usuario }}</td>
+                                                <td>{{ $fila->apellido_usuario }}</td>
+                                                <td>{{ $fila->nombre_usuario }}</td>
+                                                <td>{{ $fila->email_usuario }}</td>
+                                                <td>{{ $fila->rol->nombre_rol}}</td>
                                                 <td>
-            
-                                                    @if (Auth::user()->permisos('usuario','update'))
-                                                        <button type="button" class="btn btn-success btn-sm" id="editMedico"                
+                                                    @isset($fila->sucursal)
+                                                        {{$fila->sucursal->nombre_sucursal}}
+                                                    @endisset
+                                                </td>
+                                                <td>
+                                                    @if (Auth::user()->accesoRuta('/usuario/update'))  
+                                                        <button type="button" class="btn btn-success btn-sm" id="editUsuario"                
                                                             data-toggle="modal" data-target="#editarUsuarioModal{{$fila->id}}">
-                                                            <i id="iconoBoton" class="fa fa-edit"></i>
+                                                            <i class="fa fa-edit"></i>
                                                         </button>
                                                         @include('modals.editarUsuarioModals')
                                                     @endif
-                                                    @if (Auth::user()->permisos('usuario','delete'))
+                                                    @if (Auth::user()->accesoRuta('/usuario/delete'))  
+                                                        
                                                         @if($fila->estado_usuario == 1)                                        
-                                                            <a class="btn btn-danger btn-sm" title="Eliminar usuario" href="{{ route('usuario.bloquear', ['id' => $fila->id]) }}" onclick="
-                                                                return confirm('Desea eliminar este usuario del sistema?')"><i id="iconoBoton" class="fa fa-trash-o"></i></a> 
+                                                            <a class="btn btn-danger btn-sm"title="Eliminar el usuario" href="{{route('usuario.delete', ['id' => $fila->id])}}" onclick="
+                                                                return confirm('Desea eliminar este usuario del sistema?')"><i class="fa fa-trash-o"></i></a> 
                                                         @else
-                                                            <a class="btn btn-warning btn-sm" title="Desbloquear usuario" href="{{ route('usuario.desbloquear', ['id' => $fila->id]) }}" onclick="
-                                                                return confirm('Desea desbloquear este usuario del sistema?')"><i id="iconoBotonW" class="fa fa-unlock-alt"></i></a> 
-                                                            <a class="btn btn-danger btn-sm" title="Eliminar usuario definitivamente" href="{{ route('usuario.delete', ['id' => $fila->id]) }}" onclick="
-                                                                return confirm('Desea eliminar este usuario del sistema?')"><i id="iconoBoton" class="fa fa-trash-o"></i></a> 
-                                                            
+                                                            <a class="btn btn-warning btn-sm" title="Desbloquear el usuario" href="{{route('usuario.desbloquear', ['id' => $fila->id])}}" onclick="
+                                                                return confirm('Desea desbloquear este usuario del sistema?')"><i class="fa fa-unlock-alt"></i></a> 
                                                         @endif
-                                                            
-                                                            
-                                                    @endif                                            
-                                                    
-                
-                
-                                                
-                                                    
+                                                    @endif                                                        
                                                     
                                                 </td>
                                             </tr>
                                         @endforeach
+                                       
                                     </tbody>
                                 
                                     <tfoot>
                                         <tr>                                                                                   
-                                            <th>ID</th>
-                                            <th>Usuario</th>
-                                            <th>Rol</th>
-                                            <th>Estado</th>
-                                            @if (Auth::user()->rol_id==1)
-                                                <th>Compañia</th>
-                                            @endif
+                                            <th>Id</th>                                            
+                                            <th>Nombre</th>
                                             <th>Email</th>
+                                            <th>Rol</th>
+                                            <th>Sucursal</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </tfoot>
@@ -133,13 +119,10 @@
 @section('ordenarTabla')
 
     ,"order": [[0,'desc']]
-     ,"columns": [
+     ,"columns": [      
       null,
       null,
       null,
-      @if (Auth::user()->rol_id==1)
-        null,
-      @endif      
       null,
       null,
       { "width": "20%" }

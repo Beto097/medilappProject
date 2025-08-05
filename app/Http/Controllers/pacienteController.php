@@ -1,387 +1,292 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
-use App\Models\paciente;
-use App\Models\rol;
-use App\Models\usuario;
-use App\Models\notificacion;
-use App\Notifications\nuevoUsuario;
-use Carbon\Carbon;
-use Rules\Rules;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+
+use App\Models\paciente;
+use App\Models\consulta;
+use App\Models\rol;
+use App\Models\User;
+use Carbon\Carbon;
+
 use Session;
-use Auth;
 
 class pacienteController extends Controller
 {
-    //
-
     public function index(){
 
-                
         if (!Auth::user()) {
-            $current = url()->current();
-            Session::put('url', $current); 
+
+            Session::put('url', url()->current());    
             return redirect(route('login.index'));
         }
-                
-        if (!Auth::user()->permisos('paciente')){
-            
-            return redirect(route('index'));
+
+        if(Auth::user()->accesoRuta('/paciente')){
+            if (Auth::user()->rol->tipo_rol == 1) {
+            $resultado = paciente::orderBy('created_at', 'desc')->take(50)->get();
+            } else {
+            $resultado = paciente::where('estado_paciente', 1)
+                ->orderBy('created_at', 'desc')
+                ->take(50)
+                ->get();
+            }
+
+            return view("paciente.index", ["resultado" => $resultado]);
         }
 
-        if(Auth::user()->rol_id==1){
-
-            $resultado = paciente::get(); 
-
-        }else{
-
-            $resultado=paciente::where('estado_paciente',1)->get();
-
-        }
-
-        return view ("paciente.index", ["resultado"=>$resultado,]);
-        
+        return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
     }
 
     public function create(){
-        
+
         if (!Auth::user()) {
-            $current = url()->current();
-            Session::put('url', $current); 
+
+            Session::put('url', url()->current());    
             return redirect(route('login.index'));
         }
-                
-        if (!Auth::user()->permisos('paciente','create')){
-            
-            return redirect(route('index'));
-        }
-            
-           
-        return view("paciente.create");       
-        
-    }
 
-    public function insert(Request $request){       
-        if (!Auth::user()) {
-            $current = url()->current();
-            Session::put('url', $current); 
-            return redirect(route('login.index'));
-        }
-                
-        if (!Auth::user()->permisos('paciente','create')){
-            
-            return redirect(route('index'));
-        }
-
-        $existe = paciente::where('identificacion_paciente', $request->txtcedula)->count();
-        if($existe == 1){
-            return back()->withInput()->withErrors(['status' => "La cédula que quiere ingresar ya se encuentra registrada en el sistema, ingrese una diferente!"]);
-        }else{
-            $obj_paciente = new paciente();
-            $obj_paciente->identificacion_paciente = $request->txtCedula;
-            $obj_paciente->nombre_paciente = strtoupper($request->txtnombre);
-            $obj_paciente->apellido_paciente = strtoupper($request->txtapellido);
-            $obj_paciente->sexo_paciente = $request->txtsexo;
-            $obj_paciente->fecha_nacimiento_paciente = $request->txtfecnac;
-            $obj_paciente->telefono_paciente = $request->txttelefono;
-            $obj_paciente->email_paciente =  strtolower($request->txtemail);
-            $obj_paciente->comentario_paciente = nl2br($request->txtComentario);            
-
-            try {
-                $obj_paciente->save();
-
-                if($request->esModal){
-                    if($request->esModal==2){
+        if(Auth::user()->accesoRuta('/paciente/create')){
                         
-                        return redirect(route('paciente.index'))->withErrors(['status' => "Se Agregó el Nuevo Paciente " .$obj_paciente->nombre_paciente." ".$obj_paciente->apellido_paciente ]); 
-                    }
-                }
-                return redirect(route('paciente.index'))->withErrors(['status' => "Se Agregó el Nuevo Paciente " .$obj_paciente->nombre_paciente." ".$obj_paciente->apellido_paciente ]); 
 
-            } catch (\Illuminate\Database\QueryException $qe) {                
-                return redirect()->back()->withErrors(['danger' => $qe->getMessage()]);
-            } catch (Exception $e) {
-                return redirect()->back()->withErrors(['danger' => $e->getMessage()]);
-            } catch (\Throwable $th) {
-                return redirect()->back()->withErrors(['danger' => $th->getMessage()]);
-            }
-
-            /* if ($obj_paciente->email_paciente!='') {
-
-                $password = Controller::generaPassword(10);                        
-                $obj_usuario =new usuario();
-                $obj_usuario->nombre_usuario = $obj_paciente->identificacion_paciente;
-                $obj_usuario->email_usuario = $obj_paciente->email_paciente;
-                $obj_usuario->password_usuario =  md5($password);
-                $rol = rol::where('nombre_rol','Paciente')->first();
-                $obj_usuario->rol_id = $rol->id;
-                $obj_usuario->save();
-
-                //Enviar notificacionea a usuarios
-                $notificacion['identificacion_paciente'] = $obj_paciente->identificacion_paciente;
-                $notificacion['mensaje'] = 'El paciente '.$obj_paciente->nombre_paciente." ".$obj_paciente->apellido_paciente.' se le creo una cuenta en webvalmar.com';
-                $notificacion['password'] = $password;
-                
-                $roles = rol::where('nombre_rol','like','Recep%')->get();
-                
-                $lista_roles = array();
-                foreach($roles as $rol){
-                    array_push($lista_roles,$rol->id);
-                }
-                
-                usuario::whereIn('rol_id',$lista_roles)                            
-                        ->each(function(usuario $usuario) use ($notificacion){
-                            $usuario->notify(new nuevoUsuario($notificacion));
-                        });
-
-                
-
-
-            }
-*/            
+            return view ("paciente.create");
             
         }
 
-            
-            
-              
-           
+        return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
+    }
 
+    public function consultar($id){
+
+        if (!Auth::user()) {
+
+            return 'no tienes acceso';
+        }
+
+        $valor= array();
+        $cedula = str_replace(' ','',trim($id));         
+        $existe = paciente::where('identificacion_paciente',$cedula)->count();
+        
+        if($existe >0){
+            $paciente = paciente::where('identificacion_paciente',$cedula)->first();            
+            $edad = $paciente->edad();
+            $valor= array("cedula"=>$cedula,"nombre"=>$paciente->nombre_paciente." ".$paciente->apellido_paciente,"edad"=>$edad,'consulta'=>$paciente->consultaActiva()); 
+            return $valor;
+        }
+        
+        return response()->json(['error' => 'Paciente no encontrado'], 404);
         
     }
 
-    public function update($id){
+    public function buscar(){
+
         if (!Auth::user()) {
-            $current = url()->current();
-            Session::put('url', $current); 
+
+            Session::put('url', url()->current());    
             return redirect(route('login.index'));
         }
-                
-        if (!Auth::user()->permisos('paciente','update')){
+
+        if(Auth::user()->accesoRuta('/paciente')){                        
             
-            return redirect(route('index'));
+
+            return view ("paciente.buscar");
+            
         }
 
-        $resultado = paciente::get()->where('id',$id);
-        return view ("paciente.update",  ["resultado"=>$resultado]);
-
-           
-        
+        return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
     }
 
-    public function save(Request $request){
+    public function search(Request $request){
+
         if (!Auth::user()) {
-            $current = url()->current();
-            Session::put('url', $current); 
+
+            Session::put('url', url()->current());    
             return redirect(route('login.index'));
         }
-                
-        if (!Auth::user()->permisos('paciente','update')){
-            
-            return redirect(route('index'));
-        }
-                
-        $obj_paciente = paciente::find($request->txtid);
-                
-        if($obj_paciente->identificacion_paciente == $request->txtCedula){
+
+        if(Auth::user()->accesoRuta('/paciente')){        
+
+            $keyWord = '%'.$request->txtBuscar.'%';
+
+            return view("paciente.index", [
+                'resultado' => paciente::latest()
     
-            $obj_paciente->identificacion_paciente = $request->txtCedula;
-            $obj_paciente->nombre_paciente =  strtoupper($request->txtnombre);
-            $obj_paciente->apellido_paciente = strtoupper($request->txtapellido);
-            $obj_paciente->sexo_paciente = $request->txtsexo;
-            $obj_paciente->fecha_nacimiento_paciente = $request->txtfecnac;
-            $obj_paciente->telefono_paciente = $request->txttelefono;
-            $obj_paciente->email_paciente = strtolower($request->txtemail);
-            $obj_paciente->comentario_paciente = nl2br($request->txtComentario);
-            try {
-                $obj_paciente->save();
+                            ->where(function ($query) use ($keyWord){
+                                $query->orWhere('identificacion_paciente', 'LIKE', $keyWord)
+                                ->orWhere('nombre_paciente', 'LIKE', $keyWord)
+                                ->orWhere('apellido_paciente', 'LIKE', $keyWord)
+                                ->orWhere(DB::raw("CONCAT(nombre_paciente,' ',apellido_paciente)"), 'LIKE', str_replace(" ", "%", $keyWord));
+                            
+                            })
+                            
+                            ->get(),
+                ]); 
+            
+        }
 
-                if($request->esModal==2){
-                    return redirect()->back()->withErrors(['status' => "Se Modificó el Paciente Correctamente!"]);
-                }
-            
-                return redirect(route('paciente.index'))->withErrors(['status' => "Se Modificó el Paciente Correctamente!" ]);
+        return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
+    }
 
-            } catch (\Illuminate\Database\QueryException $qe) {                
-                return redirect()->back()->withErrors(['danger' => $qe->getMessage()]);
-            } catch (Exception $e) {
-                return redirect()->back()->withErrors(['danger' => $e->getMessage()]);
-            } catch (\Throwable $th) {
-                return redirect()->back()->withErrors(['danger' => $th->getMessage()]);
-            }
-            
-        }else{
-            $existe = paciente::where('identificacion_paciente', $request->txtCedula)->count();
-            
+    public function insert(Request $request){
+        if (!Auth::user()) {
+
+            Session::put('url', url()->current());    
+            return redirect(route('login.index'));
+        }
+
+
+        if(Auth::user()->accesoRuta('/paciente/create')){//solo modificar la ruta buscar las rutas en web.php o el la tabla pantallas
+                //esto ya estaba 
+            $existe = paciente::where('identificacion_paciente', $request->txtcedula)->count();
             if($existe == 1){
-                if($request->esModal==2){
-                    return redirect()->back()->withErrors(['danger'=> "Ingreso una cedula que ya existe",'tipo'=>'danger']);
-                    
-                }
-            
                 return back()->withInput()->withErrors(['status' => "La cédula que quiere ingresar ya se encuentra registrada en el sistema, ingrese una diferente!"]);
             }else{
+                $obj_paciente = new paciente();
                 $obj_paciente->identificacion_paciente = $request->txtCedula;
-                $obj_paciente->nombre_paciente = $request->txtnombre;
-                $obj_paciente->apellido_paciente = $request->txtapellido;
+                $obj_paciente->nombre_paciente = strtoupper($request->txtnombre);
+                $obj_paciente->apellido_paciente = strtoupper($request->txtapellido);
                 $obj_paciente->sexo_paciente = $request->txtsexo;
                 $obj_paciente->fecha_nacimiento_paciente = $request->txtfecnac;
                 $obj_paciente->telefono_paciente = $request->txttelefono;
-                $obj_paciente->email_paciente = $request->txtemail;
-                try {
-                    $obj_paciente->save();
-    
+                $obj_paciente->estado_civil_paciente = $request->txtEstadoCivil;
+                $obj_paciente->lugar_trabajo = $request->txtTrabajo;
+                $obj_paciente->direccion_paciente = $request->txtDireccion;
+                $obj_paciente->email_paciente =  strtolower($request->txtemail);
+                $obj_paciente->comentario_paciente = nl2br($request->txtComentario);
+                $obj_paciente->save();
+
+
+                if($request->esModal){
                     if($request->esModal==2){
-                        return redirect()->back()->withErrors(['status' => "Se Modificó el Paciente Correctamente!"]);
+                        return redirect()->back()->with(['txtCedula'=>$request->txtCedula,'txtRegistro'=>$request->txtRegistro]);
                     }
-                
-                    return redirect(route('paciente.index'))->withErrors(['status' => "Se Modificó el Paciente Correctamente!" ]);
-    
-                } catch (\Illuminate\Database\QueryException $qe) {                
-                    return redirect()->back()->withErrors(['danger' => $qe->getMessage()]);
-                } catch (Exception $e) {
-                    return redirect()->back()->withErrors(['danger' => $e->getMessage()]);
-                } catch (\Throwable $th) {
-                    return redirect()->back()->withErrors(['danger' => $th->getMessage()]);
                 }
+                return redirect()->back()->withErrors(['status' => "Se Agregó el Nuevo Paciente " .$obj_paciente->identificacion_paciente]); 
             }
-        }
-           
-        
-        
-    }
 
-    public function eliminar($id){
-        if (!Auth::user()) {
-            $current = url()->current();
-            Session::put('url', $current); 
-            return redirect(route('login.index'));
-        }
-                
-        if (!Auth::user()->permisos('paciente','delete')){
-            
-            return redirect(route('index'));
-        }
-
-        $resultado = paciente::find($id);
-        $resultado->estado_paciente = 0;
-        try {
-            $resultado->save();
-            return redirect (route('paciente.index'))->withErrors(['danger' => "Se Eliminó el Paciente Correctamente!" ]);
-
-        } catch (\Illuminate\Database\QueryException $qe) {                
-            return redirect()->back()->withErrors(['danger' => $qe->getMessage()]);
-        } catch (Exception $e) {
-            return redirect()->back()->withErrors(['danger' => $e->getMessage()]);
-        } catch (\Throwable $th) {
-            return redirect()->back()->withErrors(['danger' => $th->getMessage()]);
         }
         
             
-        
-    }
-
-    public function desbloquear($id){
-        if (!Auth::user()) {
-            $current = url()->current();
-            Session::put('url', $current); 
-            return redirect(route('login.index'));
-        }
-                
-        if (!Auth::user()->permisos('paciente','delete')){
-            
-            return redirect(route('index'));
-        }
-
-        $resultado = paciente::find($id);
-        $resultado->estado_paciente = 1;
-        try {
-            $resultado->save();
-            return redirect (route('paciente.index'))->withErrors(['status' => "Se Activo el Paciente Correctamente!" ]);
-
-        } catch (\Illuminate\Database\QueryException $qe) {                
-            return redirect()->back()->withErrors(['danger' => $qe->getMessage()]);
-        } catch (Exception $e) {
-            return redirect()->back()->withErrors(['danger' => $e->getMessage()]);
-        } catch (\Throwable $th) {
-            return redirect()->back()->withErrors(['danger' => $th->getMessage()]);
-        }
-        
-            
-        
-    }
-    
-    public function verPassword($id){
-        $notificaciones = notificacion::where('notifiable_type','App\Models\usuario')->where('notifiable_id',Session::get('usuario_log_id'))->get();
-        
-        foreach ($notificaciones as $notificacion) {
-            $data = json_decode($notificacion->data, true);
-            if ($data['identificacion_paciente']==$id) {
-                
-                $notificacion->delete();
-                
-                $paciente = paciente::where('identificacion_paciente',$id)->first();
-                
-                return view('paciente.verPassword',['paciente'=>$paciente,'password'=>$data['password']]);
-            }
-            
-        }
-        
-     
+        return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);          
        
+
+        
     }
-
-    public function busqueda(){
-
+    public function save(Request $request)
+    {
         if (!Auth::user()) {
-            $current = url()->current();
-            Session::put('url', $current); 
+            Session::put('url', url()->current());
             return redirect(route('login.index'));
         }
-                
-        if (!Auth::user()->permisos('paciente','buscar')){
+
+        if (Auth::user()->accesoRuta('/paciente/update')) { // Validar acceso a la ruta
+            $paciente = paciente::find($request->txtid);
+
+            if (!$paciente) {
+                return back()->withErrors(['status' => "¡El paciente no existe en el sistema!"]);
+            }
+
+            // Actualizar datos
+            $paciente->identificacion_paciente = $request->txtCedula;
+            $paciente->nombre_paciente = strtoupper($request->txtnombre);
+            $paciente->apellido_paciente = strtoupper($request->txtapellido);
+            $paciente->sexo_paciente = $request->txtsexo;
+            $paciente->fecha_nacimiento_paciente = $request->txtfecnac;
+            $paciente->telefono_paciente = $request->txttelefono;
+            $paciente->estado_civil_paciente = $request->txtEstadoCivil;
+            $paciente->lugar_trabajo = $request->txtTrabajo;
+            $paciente->direccion_paciente = $request->txtDireccion;
+            $paciente->email_paciente = strtolower($request->txtemail);
+            $paciente->comentario_paciente = nl2br($request->txtComentario);
+            $paciente->save();
+
             
-            return redirect(route('index'));
+
+            return redirect()->back()->withErrors(['status' => "Paciente " . $paciente->identificacion_paciente . " actualizado correctamente."]);
         }
-        
-        return view("paciente.buscar");
-           
-        
+
+        return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
     }
 
 
-    public function buscar(Request $request){
-        
+
+    public function verHistorial($id){
         if (!Auth::user()) {
-            $current = url()->current();
-            Session::put('url', $current); 
+
+            Session::put('url', url()->current());    
             return redirect(route('login.index'));
         }
-                
-        if (!Auth::user()->permisos('paciente','buscar')){
-            
-            return redirect(route('index'));
-        }
-                
-        $keyWord = '%'.$request->txtTexto .'%';
-        $pacientes = paciente::orWhere('identificacion_paciente', 'LIKE', $keyWord)
-                    ->orWhere('nombre_paciente', 'LIKE', $keyWord)
-                    ->orWhere('apellido_paciente', 'LIKE', $keyWord)
-                    ->orWhere('telefono_paciente', 'LIKE', $keyWord)
-                    ->orWhere('email_paciente', 'LIKE', $keyWord)
-                    ->get();
-        
-                 
-        return view ("paciente.index", ["resultado"=>$pacientes]);
 
-           
+
+        if(Auth::user()->accesoRuta('/paciente/historia/clinica')){//solo modificar la ruta buscar las rutas en web.php o el la tabla pantallas
+
+            $paciente = paciente::find($id);
+
+            if ($paciente->consultaActiva()) {
+
+
+                $consulta = consulta::whereIn('estado_consulta', ['Pendiente', 'EN CURSO'])->where('paciente_id',$paciente->id)->first();
+
+                return view('paciente.historial',['consulta'=>$consulta,'paciente'=>$paciente]);
+            }
+
+            return view('paciente.historial',['paciente'=>$paciente]);
+
+        }
+        
+            
+        return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);          
+       
+
         
     }
+    public function ajaxBuscar(Request $request)
+    {
+        if (!Auth::user()) {
+            return response()->json(['error' => 'No autorizado'], 401);
+        }
 
-    
+        $q = $request->input('q', '');
 
+        if (Auth::user()->rol->tipo_rol == 1) {
+            $pacientes = paciente::where(function($query) use ($q) {
+                    $query->where('identificacion_paciente', 'LIKE', $q . '%')
+                        ->orWhere('nombre_paciente', 'LIKE', $q . '%')
+                        ->orWhere('apellido_paciente', 'LIKE', $q . '%')
+                        ->orWhere(DB::raw("CONCAT(nombre_paciente,' ',apellido_paciente)"), 'LIKE', $q . '%');
+                })
+                ->orderBy('created_at', 'desc')
+                ->take(50)
+                ->get();
+        } else {
+            $pacientes = paciente::where('estado_paciente', 1)
+                ->where(function($query) use ($q) {
+                    $query->where('identificacion_paciente', 'LIKE', $q . '%')
+                        ->orWhere('nombre_paciente', 'LIKE', $q . '%')
+                        ->orWhere('apellido_paciente', 'LIKE', $q . '%');
+                })
+                ->orderBy('created_at', 'desc')
+                ->take(50)
+                ->get();
+        }
+
+        $data = [];
+        foreach ($pacientes as $fila) {
+            $acciones = view('partials.paciente_acciones', compact('fila'))->render();
+
+            $data[] = [
+                $fila->id,
+                $fila->identificacion_paciente,
+                $fila->nombre_paciente . ' ' . $fila->apellido_paciente,
+                $fila->sexo_paciente == 'm' ? '<span class="label label-primary">Masculino</span>' : '<span class="label label-info">Femenino</span>',
+                $fila->edad(),
+                $fila->telefono_paciente,
+                $acciones
+            ];
+        }
+
+        return response()->json(['data' => $data]);
+    }
 }

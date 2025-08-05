@@ -2,17 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Auth;
 
 class rol extends Model
 {
-    use HasFactory;
     protected $table = "rol";
-    protected $connection = 'mysql';
     protected $primaryKey="id";
-    protected $fillable=array("nombre_rol");
 
     public function usuarios()
     {
@@ -21,23 +16,18 @@ class rol extends Model
 
     public function pantallas()
     {
-        
-        return $this->belongsToMany('App\Models\pantalla', 'rol_pantalla', 'rol_id', 'pantalla_id');
-        
+        return $this->belongsToMany(pantalla::class, 'rol_pantalla', 'rol_id', 'pantalla_id');
     }
 
-    public function company()
-    {
-        return $this->belongsTo('App\Models\company');
-    }
+    public function menu()
+    {        
+        $pantallas_rol = $this->pantallas;       
+        $lista = array();
 
-    public function companys()
-    {
-        if(Auth::user()->rol_id==1){
-            $companys = company::where('id','<>',0)->get();
-            return $companys;
+        foreach($pantallas_rol as $pantalla_rol){
+            array_push($lista,$pantalla_rol->id);
         }
-        return null;
-    }
 
+        return pantalla::where('padre',0)->where('estado_pantalla',1)->whereIn('id',$lista)->orderBy('orden','ASC')->get(); 
+    }
 }

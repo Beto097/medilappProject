@@ -9,7 +9,6 @@ class rol_pantalla extends Model
 {
     use HasFactory;
     protected $table = "rol_pantalla";
-    protected $connection = 'mysql';
     protected $primaryKey="id";
     protected $fillable=array("pantalla_id","rol_id");
 

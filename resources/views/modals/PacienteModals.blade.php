@@ -45,32 +45,54 @@
                                     </div>
                                     <div class="form-group col-md-6 col-sm-12 col-xs-12">
                                         <label class="control-label mb-10 text-left">Fecha de Nacimiento</label>
-                                        <input type="date" class="form-control" id="inputfecnac" name="txtfecnac"
+                                        <input type="date" class="form-control" id="txtfecnac" name="txtfecnac"  onchange="validarEdad()"
                                             value="{{old ('txtfecnac')}}" required>
                                     </div>
-                                    <div class="form-group col-md-6 col-sm-12 col-xs-12" id='telefonoDiv'>
-                                        <label class="control-label mb-10 text-left">Telefono</label>
-                                        <input type="text" class="form-control form-control-sm has-error" id="inputTelefonoModal" placeholder="Ejemplo:66666666"  name="txttelefono" 
-                                            value="{{old ('txttelefono')}}"  >
-                                            <small id="AlertaValidarTelefono" class="form-text text-muted"></small>
+                                    <div id="contenidoMayor" class="hidden">
+
+                                        <div class="form-group col-md-6 col-sm-12 col-xs-12">  
+                                            <label class="control-label mb-10 text-left">Estado Civil</label>
+                                            <select class="form-control" name="txtEstadoCivil" id="">                                            
+                                                
+                                                <option value="Soltero/a">Soltero/a</option>
+                                                <option value="Casado/a">Casado/a</option>
+                                                <option value="Unido/a">Unido/a</option>                   
                                             
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                            <label class="control-label mb-10 text-left">Lugar de Trabajo</label>
+                                            <input type="text" class="form-control form-control-sm" id="inputtrabajo" placeholder="Ejemplo: Contruccion" name="txtTrabajo" 
+                                                value="{{old ('txtTrabajo')}}" >
+                                        </div>
                                     </div>
-                                    <div class="form-group col-md-12 col-sm-12 col-xs-12" id="emailDiv">
+                                    <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                        <label class="control-label mb-10 text-left">Telefono</label>
+                                        <input type="text" class="form-control form-control-sm" id="inputtelefono" placeholder="Ejemplo:66666666" name="txttelefono" 
+                                            value="{{old ('txttelefono')}}"  >
+                                    </div>
+                                    
+                                    <div class="form-group col-md-12 col-sm-12 col-xs-12">
+                                        <label class="control-label mb-10 text-left">Direccion</label>
+                                        <input type="text" class="form-control form-control-sm" id="inputdireccion" placeholder="Ejemplo: Carrasquilla" name="txtDireccion" 
+                                            value="{{old ('txtDireccion')}}" >
+                                    </div>
+                                    <div class="form-group col-md-12 col-sm-12 col-xs-12">
                                         <label class="control-label mb-10 text-left" for="example-email">Correo</label>
                                         <div class="input-group mb-15"> <span class="input-group-addon">@</span>
-                                            <input type="email" class="form-control" id="inputEmailModal" placeholder="Ejemplo:juan@gmail.com" 
-                                               name="txtemail" value="{{old ('txtemail')}}">                                               
+                                            <input type="email" class="form-control" placeholder="Ejemplo:juan@gmail.com" 
+                                               name="txtemail" value="{{old ('txtemail')}}">
                                         </div>
-                                        <small id="AlertaValidarEmail" class="form-text text-muted"></small>
                                     </div>
                                     
                                     <div class="form-group col-md-12 col-sm-12 col-xs-12">
                                         <label class="control-label mb-10 text-left">Comentarios</label>
                                         <textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" name="txtComentario" rows="2">{{old ('txtComentario')}}</textarea>
                                     </div>
-                                    <div class="modal-footer">                                        
-                                        <button type="submit" id="btnCrearPacienteModal"  class="btn btn-primary text-left">Agregar Paciente</button>
-                                    </div>
+                                    
+                                </div>
+                                <div class="modal-footer">                                        
+                                    <button type="submit" id="btnCrearModal"  class="btn btn-primary text-left">Agregar Paciente</button>
                                 </div>
                             </form>
                         </div>

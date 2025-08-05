@@ -1,78 +1,83 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\View;
-use App\Models\usuario;
-use App\Models\rol_pantalla;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Models\rol;
+use App\Models\paciente;
+use App\Models\consulta;
+use App\Models\orden_laboratorio;
+use App\Models\examen_orden_laboratorio;
+
+use Carbon\Carbon;
 use Session;
-use Auth;
 
 class loginController extends Controller
 {
-    Public function index() {
+    public function dashboard(){
 
-        if (Auth::user()) {
+        if (!Auth::user()) {
+
+            Session::put('url', url()->current());    
+            return redirect(route('login.index'));
             
-            return redirect(route('index'));
+        }        
 
-        }
+
+        consulta::actualizarEstados();  
+
+    
+        return view('index');
+        
+    }
+
+    Public function index() {
         
         return view('login.index');
     }
 
     Public function login(Request $request) {
+
         $nombre=$request->usuario;
-        $contraseña=$request->password;        
+        $contraseña=$request->password;  
         
-        $existe=usuario::where('nombre_usuario',$nombre)->count();
+        $usuario=User::where('nombre_usuario',$nombre)->first();
         
-        if ($existe==1) {
-            $usuario=usuario::where('nombre_usuario',$nombre)->first(); 
+        if ($usuario->estado_usuario==0) {
+
+            return redirect()->back()->withErrors(['danger' => "no puede ingresar al sistema comuniquese con el administrador"])->withInput($request->all());
+        }
+        
+        if ($usuario) {
+
+            
+
             if ($usuario['password_usuario']==md5($contraseña)) {
 
                 Auth::login($usuario);
+
                 if (Session::get('url')) {
+                       
                     return redirect(Session::get('url'));
-                }
-                return redirect(route('index'));
+                } 
                 
+                return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
             }
-            else {
                 
-                return redirect()->back()->withErrors(['danger' => "Contraseña incorrecta."])->withInput($request->all());
-            }
+            return redirect()->back()->withErrors(['danger' => "Contraseña incorrecta."])->withInput($request->all());
+
         }
-        else {
-           
-            return redirect()->back()->withErrors(['danger' => "El usuario es incorrecto."])->withInput($request->all());
-        }
+
+        return redirect()->back()->withErrors(['danger' => "El usuario es incorrecto."])->withInput($request->all());
+        
     }
 
-    Public function validation () {
-        return view('login.validar');
-    }
-
-    Public function emailvalidation (Request $request) {
-        $email=$request->email;
-
-        $existe=usuario::where('email_usuario',$email)->count();
-
-        if ($existe==1) {
-            /* Codigo de validacion email */
-            return redirect(route('login.index'))->withErrors(['status' => "Se ha mandado la verificación al correo electrónico." ]);
-        }
-        else {
-            return back()->withInput()->withErrors(['status' => "El correo electronico no existe." ]);
-        }
-    }
     public function cerrar(){
-        Auth::logout();
-        Session::flush();        
 
+        Auth::logout();
+      
         return redirect(route('login.index'));
     }
 }

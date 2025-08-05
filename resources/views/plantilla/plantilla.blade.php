@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-	<meta name="description" content="Descubre nuestra innovadora aplicación de gestión de expedientes de laboratorios. Simplifica y optimiza el manejo de datos cruciales para laboratorios, agilizando procesos y mejorando la eficiencia en la toma de decisiones. Nuestra solución intuitiva ofrece una plataforma robusta y segura para almacenar, organizar y analizar datos con total precisión. Potencia tu laboratorio con tecnología de vanguardia y lleva la excelencia en la gestión de expedientes al siguiente nivel con Medilapp. ¡Comienza hoy mismo a transformar la forma en que gestionas tus operaciones de laboratorio!">
-
 	<title>@yield('titulo')</title>
 	@yield('css')
 	
 	<!-- Favicon -->
-	<link rel="shortcut icon" href="{{asset('favicon.ico')}}">
-	<link rel="icon" href="{{asset('favicon.ico')}}" type="image/x-icon">
+	<link rel="shortcut icon" href="{{asset('/favicon.ico')}}">
+	<link rel="icon" href="{{asset('/favicon.ico')}}" type="image/x-icon">
 
 	<!-- Data table CSS -->
 	<link href="{{asset('vendors/bower_components/datatables/media/css/jquery.dataTables.min.css')}}" rel="stylesheet" type="text/css"/>
+	
 	
 	<!-- Toast CSS -->
 	<link href="{{asset('vendors/bower_components/jquery-toast-plugin/dist/jquery.toast.min.css')}}" rel="stylesheet" type="text/css"/>
@@ -26,16 +25,9 @@
 	
 	<!-- Custom CSS -->
 	<link href="{{asset('dist/css/style.css')}}" rel="stylesheet" type="text/css"/>
-	
+
 	
 </head>
-<?php 
-    use App\Http\Controllers\Controller; 
-    $pantallas_menu = Controller::pantallasMenuXUsuario();
-    $cantidad_notificaciones = Controller::cantidadNotificaciones();
-    $notificaciones = Controller::notificaciones();   
-    
-?>
 <body @yield('bodyJs')>
 	<!-- Preloader -->
 	<div class="preloader-it">
@@ -56,6 +48,16 @@
         <!-- Main Content -->
 		<div class="page-wrapper">
             <!--añadir dashboard-->
+						
+				
+			@include('modals.actualizarSucursalModals')
+			@include('modals.actualizarPasswordModals')
+			@if (Route::is('index'))
+				    <div class="col-sm-4 col-sm-offset-8">
+          @include('plantilla.errores')
+        </div>	
+			@endif
+			
 			@yield('contenido')
 			<!-- Footer -->
 			@include('plantilla.footer')

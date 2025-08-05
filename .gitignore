@@ -1,8 +1,4 @@
-/database/
 /vendor/
-/vendors/
-/bootstrap/
-/tests/
 node_modules/
 npm-debug.log
 yarn-error.log
@@ -20,8 +16,18 @@ public_html/storage
 public_html/hot
 
 storage/*.key
+storage/logs/
 .env
 Homestead.yaml
 Homestead.json
 /.vagrant
 .phpunit.result.cache
+
+/public/build
+/public/archivos
+/storage/pail
+.env.backup
+.env.production
+.phpactor.json
+auth.json
+

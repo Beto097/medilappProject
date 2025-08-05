@@ -4,55 +4,10 @@
             <span>Menú</span> 
             <i class="zmdi zmdi-more"></i>
         </li>
-        
-        @foreach (Auth::user()->rol->pantallas as $pantalla_menu)
-       
-            @if ($pantalla_menu->padre == 0  and $pantalla_menu->estado_pantalla==1 and (Session::has('dataBaseName') or Auth::user()->rol_id !=1) and $pantalla_menu->url_pantalla != '#')
-                <li>
-                    <a  
-                        @if (Request::is($pantalla_menu->request_pantalla))
-                            class="active"
-                        @endif  
-                        href="javascript:void(0);" data-toggle="collapse" data-target="#collapse{{$pantalla_menu->titulo_pantalla}}">
-                        <div class="pull-left"><i class="{{$pantalla_menu->icono_pantalla}}"></i>
-                            <span class="right-nav-text">
-                                {{$pantalla_menu->nombre_pantalla}}
-                            </span>
-                        </div>
-                        <div class="pull-right">
-                            <i class="zmdi zmdi-caret-down"></i>
-                        </div>
-                        <div class="clearfix"></div>
-                    </a>
-                    <ul id="collapse{{$pantalla_menu->titulo_pantalla}}" class="collapse collapse-level-1">
-                        @if ($pantalla_menu->url_pantalla != "#")
-                            @if ($pantalla_menu->nombre_pantalla=='Orden de Laboratorio')
-                                <li>
-                                    <a href="{{$pantalla_menu->url_pantalla}}">Lista de Ordenes</a>
-                                </li>                                
-                            @else
-                                <li>
-                                    <a href="{{$pantalla_menu->url_pantalla}}">Lista de {{$pantalla_menu->nombre_pantalla}}</a>
-                                </li>                                 
-                            @endif
-                            
-                        @endif
-                        @foreach(Auth::user()->rol->pantallas as $sub_menu)
-                            @if($pantalla_menu->id == $sub_menu->padre and $sub_menu->estado_pantalla==1 )   
-                                <li>
-                                    <a href="{{$sub_menu->url_pantalla}}">{{$sub_menu->nombre_pantalla}}</a>
-                                </li>                             
-                            @endif
-                        @endforeach 
-                          
-                        
-                    </ul>
-                </li>     
 
-                
-                
-            @endif  
-            @if ($pantalla_menu->url_pantalla == '#')
+    
+
+        @foreach (Auth::user()->rol->menu() as $pantalla_menu)  
             <li>
                 <a  
                     @if (Request::is($pantalla_menu->request_pantalla))
@@ -69,7 +24,7 @@
                     </div>
                     <div class="clearfix"></div>
                 </a>
-                <ul id="collapse{{$pantalla_menu->titulo_pantalla}}" class="collapse collapse-level-1">
+                <ul id="collapse{{$pantalla_menu->titulo_pantalla}}" class="collapse collapse-level-1 in">
                     @if ($pantalla_menu->url_pantalla != "#")
                         @if ($pantalla_menu->nombre_pantalla=='Orden de Laboratorio')
                             <li>
@@ -82,21 +37,24 @@
                         @endif
                         
                     @endif
-                    @foreach(Auth::user()->rol->pantallas as $sub_menu)
+                    @foreach($pantalla_menu->subMenu() as $sub_menu)
                         @if($pantalla_menu->id == $sub_menu->padre and $sub_menu->estado_pantalla==1 )   
                             <li>
                                 <a href="{{$sub_menu->url_pantalla}}">{{$sub_menu->nombre_pantalla}}</a>
                             </li>                             
                         @endif
                     @endforeach 
-                      
+                        
                     
                 </ul>
             </li>     
-            @endif              
+
+                
+                
+                       
         
         @endforeach
-        @if (Session::get('usuario_rol_id')==1)
+        {{-- @if (Session::get('usuario_rol_id')==1)
             <li>
                 <a class="active" href="javascript:void(0);" data-toggle="collapse" data-target="#dashboard_dr"><div class="pull-left"><i class="zmdi zmdi-landscape mr-20"></i><span class="right-nav-text">Dashboard</span></div><div class="pull-right"><i class="zmdi zmdi-caret-down"></i></div><div class="clearfix"></div></a>
                 <ul id="dashboard_dr" class="collapse collapse-level-1">
@@ -489,7 +447,7 @@
                     </li>
                 </ul>
             </li>
-        @endif
+        @endif --}}
         
     </ul>
 </div>

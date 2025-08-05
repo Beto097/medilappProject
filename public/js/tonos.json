@@ -1,0 +1,28 @@
+[
+    { "name": "Turquesa Principal", "rgb": [21, 197, 184], "hex": "#172865" },
+    { "name": "Verde Menta", "rgb": [102, 230, 179], "hex": "#66E6B3" },
+    { "name": "Cian Claro", "rgb": [102, 221, 255], "hex": "#66DDFF" },
+    { "name": "Lavanda Suave", "rgb": [200, 180, 255], "hex": "#C8B4FF" },
+    { "name": "Salmón Pastel", "rgb": [255, 178, 160], "hex": "#FFB2A0" },
+    { "name": "Coral Claro", "rgb": [255, 153, 153], "hex": "#FF9999" },
+    { "name": "Amarillo Vainilla", "rgb": [255, 251, 150], "hex": "#FFFb96" },
+    { "name": "Gris Perla", "rgb": [235, 235, 235], "hex": "#EBEBEB" },
+    { "name": "Aguamarina Pastel", "rgb": [165, 255, 230], "hex": "#A5FFE6" },
+    { "name": "Verde Hielo", "rgb": [180, 250, 240], "hex": "#B4FAF0" },
+    { "name": "Rosa Polvo", "rgb": [255, 204, 229], "hex": "#FFCCE5" },
+    { "name": "Azul Cielo", "rgb": [130, 210, 255], "hex": "#82D2FF" },
+    { "name": "Arena", "rgb": [245, 222, 179], "hex": "#F5DEB3" },
+    { "name": "Azul Lavado", "rgb": [190, 225, 255], "hex": "#BEE1FF" },
+    { "name": "Verde Salvia", "rgb": [195, 225, 204], "hex": "#C3E1CC" },
+    { "name": "Champán Rosado", "rgb": [255, 230, 230], "hex": "#FFE6E6" },
+    { "name": "Azul Acero Claro", "rgb": [176, 196, 222], "hex": "#B0C4DE" },
+    { "name": "Malva Claro", "rgb": [216, 191, 216], "hex": "#D8BFD8" },
+    { "name": "Nude", "rgb": [255, 233, 207], "hex": "#FFE9CF" },
+    { "name": "Menta Crema", "rgb": [205, 255, 235], "hex": "#CDFFEB" },
+    { "name": "Melón Pastel", "rgb": [255, 204, 153], "hex": "#FFCC99" },
+    { "name": "Lila Apagado", "rgb": [221, 204, 238], "hex": "#DDCCEE" },
+    { "name": "Azul Niebla", "rgb": [220, 240, 255], "hex": "#DCF0FF" },
+    { "name": "Crema Hielo", "rgb": [255, 255, 240], "hex": "#FFFFF0" },
+    { "name": "Rosa Té", "rgb": [255, 214, 223], "hex": "#FFD6DF" }
+]
+  

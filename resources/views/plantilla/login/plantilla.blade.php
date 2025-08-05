@@ -3,14 +3,12 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-		<title>Medilapp - Inicio de sesión</title>
+		<title>Centro Médico Coralis - Inicio de sesión</title>
 		
 		<meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="description" content="Descubre nuestra innovadora aplicación de gestión de expedientes de laboratorios. Simplifica y optimiza el manejo de datos cruciales para laboratorios, agilizando procesos y mejorando la eficiencia en la toma de decisiones. Nuestra solución intuitiva ofrece una plataforma robusta y segura para almacenar, organizar y analizar datos con total precisión. Potencia tu laboratorio con tecnología de vanguardia y lleva la excelencia en la gestión de expedientes al siguiente nivel con Medilapp. ¡Comienza hoy mismo a transformar la forma en que gestionas tus operaciones de laboratorio!">
-
-
+        
 		<!-- Favicon -->
 		<link rel="shortcut icon" href="{{asset('favicon.ico')}}">
 		<link rel="icon" href="{{asset('favicon.ico')}}" type="image/x-icon">
@@ -66,6 +64,5 @@
 		
 		<!-- Init JavaScript -->
 		<script src="{{asset('dist/js/init.js')}}"></script>
-		@extends('plantilla.footer')
 	</body>
 </html>

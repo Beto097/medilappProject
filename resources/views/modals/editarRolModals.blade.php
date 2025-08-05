@@ -1,45 +1,25 @@
-<div id="editarRolModal{{$fila->id}}"   class="modal fade" tabindex="-1">
-
+<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" id="editarRolModal{{$fila->id}}" aria-hidden="true" style="display: none;">
     <div class="modal-dialog modal-lg">
-
         <div class="modal-content">
-
-            <div class="modal-header bg-valmar">
-
-                <h5 class="modal-title"><span class="font-weight-bold text-white">Editar Rol</span></h5>
-
-                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
-
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h5 class="modal-title" id="myLargeModalLabel">Editar Rol</h5>
             </div>
-
-            <div class="modal-body text-left" >
-
-                <form action="{{route('rol.save')}}" method="POST" role="form" autocomplete="off">  
-                    @csrf      
-                    <div class="form-group">
-                        <label class="text-rigth" for="">Nombre</label>
-                        <input type="text" class="form-control" id="" placeholder="Ejemplo: Recepcionista" name="txtNombre" required value="{{$fila->nombre_rol}}">
-                    </div>
-                    <input type="hidden" name="txtId" id="input" class="form-control" value="{{$fila->id}}">
-                
-                
-                    <br>
-                    <br>
-                
-                    <div class="row justify-content-around"> 
-                        <div class="col-8">
-
-                        </div>
-                        <div class="col-4"> 
-                            <input type="hidden" name="txtId" value="{{$fila->id}}">
-                            <button type="submit" id="botoncrear" class="btn btn-info btn-lg"> Guardar</button>
+            <div class="modal-body">
+                <div class="panel-wrapper collapse in">
+                    <div class="panel-body">
+                        <div class="form-wrap">
+                            <form action="{{route('rol.save')}}" method="POST" role="form" autocomplete="off">  
+                                @csrf                            
+                                <x-editar-rol :resultado="$fila" />
+                            </form>
                         </div>
                     </div>
-                </form>
+                </div>
             </div>
-
+            
         </div>
-
+        <!-- /.modal-content -->
     </div>
-
+    <!-- /.modal-dialog -->
 </div>

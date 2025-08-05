@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\examen;
@@ -19,8 +18,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ResultadoLaboratorio;
 use Session;
-use Auth;
-use QrCode;
 
 class pdfController extends Controller
 {
@@ -99,7 +96,7 @@ class pdfController extends Controller
             }
         
               
-            return redirect(route('index'));
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
             
         }else{
             return redirect(route('login.index'));
@@ -178,7 +175,7 @@ class pdfController extends Controller
             }
             
               
-            return redirect(route('index'));
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
             
         }else{
             return redirect(route('login.index'));
@@ -244,102 +241,6 @@ class pdfController extends Controller
             return $pdf->download($nombreArchivo);
         }
     }
-       
-    public function imprimirOrden($id){
         
-        if (!Auth::user()) {
-            $current = url()->current();
-            Session::put('url', $current); 
-            return redirect(route('login.index'));
-        }
-                
-        if (!Auth::user()->permisos('ordenesLaboratorio')){
-            
-            return redirect(route('index'));
-        }
-
-        
-                
-                                   
-        $orden = orden_laboratorio::find($id);  
-        
-        $link = env('APP_URL').'/ordenCliente/'.$orden->token;
-        
-        $qrCode = QrCode::size(150)->generate($link);
-
-        
-        
-        $paciente = paciente::find($orden->paciente_id);
-        $fechaHoy = Carbon::parse(date($orden->fecha_orden));
-        $fechaNacimiento = Carbon::parse(date($paciente->fecha_nacimiento_paciente));
-        $edad_paciente = $fechaHoy->diffInYears($fechaNacimiento);
-            
-        $pdf= \PDF::loadView('PDF.orden', ["orden"=>$orden,"edad_paciente"=>$edad_paciente,"conteo"=>'1','codigoQR' => $qrCode]);
-        $nombreArchivo = $paciente->nombre_paciente.'_'.$paciente->apellido_paciente.'-'.$orden->fecha_orden.'.pdf';
-        return $pdf->stream($nombreArchivo);
-      
-            
-        /* if ($rol->id == Session::get('usuario_rol_id')) {
-            $usuario = usuario::find(Session::get('usuario_log_id'));                        
-            $paciente = paciente::where('identificacion_paciente',$usuario->nombre_usuario)->first();
-            $paciente_id = $examen_orden->orden_laboratorio->paciente_id;
-            if ($paciente->id != $paciente_id) {
-                return redirect(route('resultado.ver'));
-            }
-            
-        } */
-        if($examen->tiene_referencia == '0'){
-            $conteo = resultado::where('examen_orden_laboratorio_id',$examen_orden->id)->get()->count();
-            
-            if ($conteo > '10') {
-                $max = round($conteo/2);
-                $min = round($conteo/2 , 0, PHP_ROUND_HALF_DOWN);
-                $resultados1 = resultado::where('examen_orden_laboratorio_id',$examen_orden->id)->take($max)->get();
-                $resultados2 = resultado::where('examen_orden_laboratorio_id',$examen_orden->id)->orderBy('id','desc')->take($min)->get();
-                
-
-                $orden = orden_laboratorio::find($examen_orden->orden_laboratorio_id);
-                //calcular la edad del paciente;
-                $paciente = paciente::find($orden->paciente_id);
-                $fechaHoy = Carbon::parse(date($orden->fecha_orden));
-                $fechaNacimiento = Carbon::parse(date($paciente->fecha_nacimiento_paciente));
-                $edad_paciente = $fechaHoy->diffInYears($fechaNacimiento);
-                    
-                $pdf= \PDF::loadView('PDF.Prueba', ["examen_orden"=>$examen_orden,"examen"=>$examen,"orden"=>$orden,"resultados1"=>$resultados1,"resultados2"=>$resultados2,"edad_paciente"=>$edad_paciente ,"maximo"=>$max,"min"=>$min]);
-                $nombreArchivo = $paciente->nombre_paciente.'_'.$paciente->apellido_paciente.'-'.$orden->fecha_orden.'-'.$examen_orden->id.'-'.$examen->id.'.pdf';
-                return $pdf->stream($nombreArchivo);
-            }
-            
-            $resultados = resultado::where('examen_orden_laboratorio_id',$examen_orden->id)->get();
-            
-            
-
-            $orden = orden_laboratorio::find($examen_orden->orden_laboratorio_id);
-            //calcular la edad del paciente;
-            $paciente = paciente::find($orden->paciente_id);
-            $fechaHoy = Carbon::parse(date($orden->fecha_orden));
-            $fechaNacimiento = Carbon::parse(date($paciente->fecha_nacimiento_paciente));
-            $edad_paciente = $fechaHoy->diffInYears($fechaNacimiento);
-                
-            $pdf= \PDF::loadView('PDF.resultados', ["examen_orden"=>$examen_orden,"examen"=>$examen,"orden"=>$orden,"resultados"=>$resultados,"edad_paciente"=>$edad_paciente,"conteo"=>'1']);
-            $nombreArchivo = $paciente->nombre_paciente.'_'.$paciente->apellido_paciente.'-'.$orden->fecha_orden.'-'.$examen_orden->id.'-'.$examen->id.'.pdf';
-            return $pdf->stream($nombreArchivo);
-        }else{
-            
-            $resultados = resultado::where('examen_orden_laboratorio_id',$examen_orden->id)->get();
-            
-            $orden = orden_laboratorio::find($examen_orden->orden_laboratorio_id);
-            //calcular la edad del paciente;
-            $paciente = paciente::find($orden->paciente_id);
-            $fechaHoy = Carbon::parse(date($orden->fecha_orden));
-            $fechaNacimiento = Carbon::parse(date($paciente->fecha_nacimiento_paciente));
-            $edad_paciente = $fechaHoy->diffInYears($fechaNacimiento);
-                
-            $pdf= \PDF::loadView('PDF.resultados', ["examen_orden"=>$examen_orden,"examen"=>$examen,"orden"=>$orden,"resultados"=>$resultados,"edad_paciente"=>$edad_paciente,"conteo"=>'0']);
-            $nombreArchivo = $paciente->nombre_paciente.'_'.$paciente->apellido_paciente.'-'.$orden->fecha_orden.'-'.$examen_orden->id.'-'.$examen->id.'.pdf';
-            return $pdf->stream($nombreArchivo);
-        }
-           
-    }
              
 }

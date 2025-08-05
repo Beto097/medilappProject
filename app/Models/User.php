@@ -2,69 +2,70 @@
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-
 class User extends Authenticatable
 {
-    use HasFactory;
-    use Notifiable;
-    protected $connection = 'mysql';
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
     protected $table = "usuario";
-    protected $primaryKey="id";
-    
-    
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
     public function rol()
     {
         return $this->belongsTo('App\Models\rol');
     }
 
-    public function company()
+    public function sucursal()
     {
-        return $this->belongsTo('App\Models\company');
+        return $this->belongsTo('App\Models\sucursal');
     }
 
-    public function urlsPantallasXUsuario(){
 
-        
-        $pantallas_rol = rol_pantalla::where('rol_id',$this->rol_id)->get();
-        $lista = array();
+    public function accesoRuta($ruta){
 
-        foreach($pantallas_rol as $pantalla_rol){
-            array_push($lista,$pantalla_rol->pantalla->url_pantalla);
-        } 
-        return $lista;
-
-    }
-    
-    public function permisos($ruta,$permiso = ''){   
-
-       
-       
         foreach ($this->rol->pantallas as $pantalla) {
-            
-            
-            if ($pantalla->request_pantalla == $ruta && $permiso == '') {
-                return true;
-                
+            if ($pantalla->url_pantalla == $ruta) {
+                return  true;
             }
-            
-            if ($pantalla->request_pantalla == $ruta && str_contains($pantalla->url_pantalla, $permiso)) {
-                return true;
-            }
-            
-        }  
-
-        return false;        
-        
+        }
+        return false;
     }
-
-    
-
-    
 }
-

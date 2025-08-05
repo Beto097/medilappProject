@@ -6,11 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\pantalla;
 use App\Models\rol;
-use App\Models\company;
 use App\Models\rol_pantalla;
 use Illuminate\Support\Facades\DB;
 use Session;
-use Auth;
 
 class roldepantallaController extends Controller
 {
@@ -29,7 +27,7 @@ class roldepantallaController extends Controller
             }
             
               
-            return redirect(route('index'));
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
             
         }else{
             return redirect(route('login.index'));
@@ -51,7 +49,7 @@ class roldepantallaController extends Controller
             }
             
               
-            return redirect(route('index'));
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
             
         }else{
             return redirect(route('login.index'));
@@ -85,7 +83,7 @@ class roldepantallaController extends Controller
             }
         
               
-            return redirect(route('index'));
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
             
         }else{
             return redirect(route('login.index'));
@@ -107,7 +105,7 @@ class roldepantallaController extends Controller
             }
             
               
-            return redirect(route('index'));
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
             
         }else{
             return redirect(route('login.index'));
@@ -126,7 +124,7 @@ class roldepantallaController extends Controller
             }
             
               
-            return redirect(route('index'));
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
             
         }else{
             return redirect(route('login.index'));
@@ -158,7 +156,7 @@ class roldepantallaController extends Controller
             }
         
               
-            return redirect(route('index'));
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
             
         }else{
             return redirect(route('login.index'));
@@ -169,98 +167,90 @@ class roldepantallaController extends Controller
 
     public function rolPantalla($id){
 
-        if (!Auth::user()) {
-
-            $current = url()->current();
-            Session::put('url', $current); 
-            return redirect(route('login.index'));
-
-        }
-        
-        if (!Auth::user()->permisos('rol','roles')){
+        if (Session::has('usuario_rol_id')) {
+            $pantallas_menu = Controller::urlsPantallasXUsuario();
             
-            return redirect(route('index'));
+            if (in_array('/roles/pantalla/0',$pantallas_menu)){//solo modificar la ruta buscar las rutas en web.php o el la tabla pantallas
+                $pantallas = pantalla::orderBy('padre')->orderBy('id')->get();
+    
+                $pantallas_rol= rol_pantalla::get()->where('rol_id',$id);
+                $rol = rol::find($id);
+                $lista_pantallas= array();
+                foreach($pantallas_rol as $pantalla){
+                    array_push($lista_pantallas,$pantalla->pantalla_id);
+                }
+        
+                return view("rolpantalla.selectPantallaId",["pantallas"=>$pantallas,"rol"=>$rol,"lista_pantallas"=>$lista_pantallas]);
+            }
+            
+              
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
+            
+        }else{
+            return redirect(route('login.index'));
         }
-
-        $pantallas = pantalla::orderBy('padre')->orderBy('id')->get();
-
-        $pantallas_rol= rol_pantalla::get()->where('rol_id',$id);
-        $rol = rol::find($id);
-        $lista_pantallas= array();
-        foreach($pantallas_rol as $pantalla){
-            array_push($lista_pantallas,$pantalla->pantalla_id);
-        }
-
-        return view("rolpantalla.selectPantallaId",["pantallas"=>$pantallas,"rol"=>$rol,"lista_pantallas"=>$lista_pantallas]);
         
         
     }
 
     public function pantallaSave(Request $request){
-        if (!Auth::user()) {
-
-            $current = url()->current();
-            Session::put('url', $current); 
-            return redirect(route('login.index'));
-
-        }
-        
-        if (!Auth::user()->permisos('rol','update')){
+        if (Session::has('usuario_rol_id')) {
+            $pantallas_menu = Controller::urlsPantallasXUsuario();
             
-            return redirect(route('index'));
-        }
+            if (in_array('/roles/pantalla/0',$pantallas_menu)){//solo modificar la ruta buscar las rutas en web.php o el la tabla pantallas
+                DB::table('rol_pantalla')->where('rol_id', '=', $request->txtid)->delete();
+                if (empty($request->pantallas_id )) {
+                    
+                } else {
+                    foreach($request->pantallas_id as $pantalla_id){ 
 
-        DB::table('rol_pantalla')->where('rol_id', '=', $request->txtId)->delete();
-        if (empty($request->pantallas_id )) {
-            
-        } else {
-            foreach($request->pantallas_id as $pantalla_id){ 
-
-                $obj_pantalla= new rol_pantalla();
-                $obj_pantalla->rol_id= $request->txtId;
-                $obj_pantalla->pantalla_id = $pantalla_id;
-                $obj_pantalla->save();
+                        $obj_pantalla= new rol_pantalla();
+                        $obj_pantalla->rol_id= $request->txtid;
+                        $obj_pantalla->pantalla_id = $pantalla_id;
+                        $obj_pantalla->save();
+                        
+                    }  
+                }
                 
-            }  
+                
+                return redirect (route('rol.index'))->withErrors(['status' => "El rol se modifico correctamente" ]);
+            }
+            
+              
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
+            
+        }else{
+            return redirect(route('login.index'));
         }
+
         
-        
-        return redirect (route('rol.index'))->withErrors(['status' => "El rol se modifico correctamente" ]);
-           
+
     }
 
     public function rolesPantalla($id){
 
-        if (!Auth::user()) {
-
-            $current = url()->current();
-            Session::put('url', $current); 
-            return redirect(route('login.index'));
-
-        }
-        
-        if (!Auth::user()->permisos('rol','roles')){
+        if (Session::has('usuario_rol_id')) {
+            $pantallas_menu = Controller::urlsPantallasXUsuario();
             
-            return redirect(route('index'));
-        }
-
-        if (Auth::user()->company_id) {           
-            $roles = rol::where('company_id',Auth::user()->company_id)->orWhere('id',0)->orderBy('id', 'ASC')->get();
-            $pantallas = pantalla::where('request_pantalla','<>','pantalla')->get();
-        } else {
-            $roles = rol::orderBy('id', 'ASC')->get();
-            $pantallas = pantalla::get();
-        }
+            if (in_array('/roles/pantalla/0',$pantallas_menu)){//solo modificar la ruta buscar las rutas en web.php o el la tabla pantallas
+                $pantallas = pantalla::get();
+                $pantallas_rol= rol_pantalla::get()->where('rol_id',$id);
+                $roles = rol::orderBy('id', 'ASC')->get();
+                $rol = rol::find($id);
+                $lista_pantallas= array();
+                foreach($pantallas_rol as $pantalla){
+                    array_push($lista_pantallas,$pantalla->pantalla_id);
+                }
         
-        $pantallas_rol= rol_pantalla::get()->where('rol_id',$id);
-        $rol = rol::find($id);
-        $lista_pantallas= array();
-        foreach($pantallas_rol as $pantalla){
-            array_push($lista_pantallas,$pantalla->pantalla_id);
+                return view("rolpantalla.selectPantalla",["pantallas"=>$pantallas,"rol"=>$rol,"roles"=>$roles,"lista_pantallas"=>$lista_pantallas]);
+            }
+            
+              
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
+            
+        }else{
+            return redirect(route('login.index'));
         }
-
-        return view("rolpantalla.selectPantalla",["pantallas"=>$pantallas,"rol"=>$rol,"roles"=>$roles,"lista_pantallas"=>$lista_pantallas]);
-    
 
         
 
@@ -282,7 +272,7 @@ class roldepantallaController extends Controller
             }
             
               
-            return redirect(route('index'));
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
             
         }else{
             return redirect(route('login.index'));
@@ -290,68 +280,6 @@ class roldepantallaController extends Controller
 
        
     }
-
-    public function rolIndex(){
-        
-        if (!Auth::user()) {
-
-            $current = url()->current();
-            Session::put('url', $current); 
-            return redirect(route('login.index'));
-
-        }
-        
-        if (!Auth::user()->permisos('rol')){
-            
-            return redirect(route('index'));
-        }
-        
-               
-        if(Auth::user()->rol_id>1){
-            $resultado = rol::where('company_id',Auth::user()->company_id)->get();            
-        }else{
-            $resultado = rol::get(); 
-        }
-        $companys = company::where('id','!=',0)->get();
-        return view('rol.index', ["resultado"=>$resultado,'companys'=>$companys]);
-
-    
-    }
-
-    public function rolInsert(Request $request){
-        
-        if (!Auth::user()) {
-
-            $current = url()->current();
-            Session::put('url', $current); 
-            return redirect(route('login.index'));
-
-        }
-        
-        if (!Auth::user()->permisos('rol','create')){
-            
-            return redirect(route('index'));
-        }
-        
-               
-        $obj_rol = new rol();        
-        $obj_rol->nombre_rol=$request->txtNombre;
-        $obj_rol->estado_rol = 1;
-        $obj_rol->tipo_rol = 1;        
-        if ($request->txtCompany) {
-            $obj_rol->company_id = $request->txtCompany;
-        }else if(Auth::user()->company_id){
-            $obj_rol->company_id = Auth::user()->company_id;
-        }else{
-            $obj_rol->company_id = 0;
-        }
-        $obj_rol->save();
-        return redirect(route('rol.index'))->withErrors(['status' => "Se ha creado el rol: ".$obj_rol->nombre_rol ]);
-
-    
-    }
-
-    
 
     
 }

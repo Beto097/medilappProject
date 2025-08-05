@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-	<meta name="description" content="Descubre nuestra innovadora aplicación de gestión de expedientes de laboratorios. Simplifica y optimiza el manejo de datos cruciales para laboratorios, agilizando procesos y mejorando la eficiencia en la toma de decisiones. Nuestra solución intuitiva ofrece una plataforma robusta y segura para almacenar, organizar y analizar datos con total precisión. Potencia tu laboratorio con tecnología de vanguardia y lleva la excelencia en la gestión de expedientes al siguiente nivel con Medilapp. ¡Comienza hoy mismo a transformar la forma en que gestionas tus operaciones de laboratorio!">
-
 	<title>@yield('titulo')</title>
 	@yield('css')
 	
@@ -19,13 +17,6 @@
 	<link href="{{asset('dist/css/style.css')}}" rel="stylesheet" type="text/css">
 	
 </head>
-<?php 
-    use App\Http\Controllers\Controller; 
-    $pantallas_menu = Controller::pantallasMenuXUsuario();
-    $cantidad_notificaciones = Controller::cantidadNotificaciones();
-    $notificaciones = Controller::notificaciones();   
-    
-?>
 <body>
 	<!-- Preloader -->
 	<div class="preloader-it">
@@ -46,6 +37,8 @@
         <!-- Main Content -->
 		<div class="page-wrapper">
             <!--añadir dashboard-->
+			@include('modals.actualizarSucursalModals')
+			@include('modals.actualizarPasswordModals')
 			@yield('contenido')
 			<!-- Footer -->
 			@include('plantilla.footer')
@@ -82,8 +75,8 @@
 	<!-- Init JavaScript -->
 	<script src="{{asset('dist/js/init.js')}}"></script>
 	<script>
-		$('#datable_1').DataTable( {
-			 
+		var table = $('#datable_1').DataTable({
+			 searching: false,
 			"language": {
 				
 				"processing": "Procesando...",
@@ -226,7 +219,55 @@
 			}
 			@yield('ordenarTabla')
 		} );
+				// Botón personalizado de búsqueda
+		$('#customSearchBtn').on('click', function() {
+			var value = $('#customSearch').val();
+			$.ajax({
+				url: '/paciente/ajax-buscar',
+				method: 'GET',
+				data: { q: value },
+				success: function(response) {
+					table.clear();
+					response.data.forEach(function(row) {
+						table.row.add(row);
+					});
+					table.draw();
+				}
+			});
+		});
+
+		// Permitir buscar con Enter
+		$('#customSearch').on('keyup', function(e) {
+			if (e.key === 'Enter') {
+				$('#customSearchBtn').click();
+			}
+		});
+		// Búsqueda automática al escribir (mínimo 2 letras)
+		let lastValue = '';
+		$('#customSearch').on('input', function() {
+			var value = $(this).val();
+			if (value.length >= 2 && value !== lastValue) {
+				lastValue = value;
+				$.ajax({
+					url: '/paciente/ajax-buscar',
+					method: 'GET',
+					data: { q: value },
+					success: function(response) {
+						table.clear();
+						response.data.forEach(function(row) {
+							table.row.add(row);
+						});
+						table.draw();
+					}
+				});
+			}
+			if (value.length < 2) {
+				lastValue = '';
+				// Opcional: puedes recargar los 100 primeros pacientes aquí si quieres
+			}
+		});
 	</script>
+	@yield('script')
 </body>
 
 </html>

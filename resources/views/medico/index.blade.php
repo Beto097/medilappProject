@@ -15,22 +15,22 @@
         <div class="col-sm-10">
             <p>Este listado muestra todos los medicos que solicitaron examenes en el sistema</p>
         </div>
-        @if (Auth::user()->permisos('medico','create'))
-            <div class="col-sm-2">
+        <div class="col-sm-2">
+            @if (Auth::user()->accesoRuta('/medico/create'))  
                 <button class="btn btn-primary btn-lable-wrap left-label" id="addNewMedico" data-toggle="modal" data-target="#addNewMedicoModal">
                     <span class="btn-label"><i class="fa fa-folder-o"></i> </span><span class="btn-text">
                         Agregar Medico
                     </span>
                 </button>
                 @include('modals.MedicoModals')
-            </div>
-            
-        @endif
-        
+            @endif
+        </div>
         <br>
         <br>
         <br>
-        @include('plantilla.errores')
+            <div class="col-sm-4 col-sm-offset-8">
+          @include('plantilla.errores')
+        </div>
         <div class="col-sm-12">
             <div class="panel panel-default card-view">
                 <div class="panel-heading">
@@ -64,14 +64,14 @@
                                                 <td>{{ $fila->email_medico }}</td>
                                                 <td>{{ $fila->telefono_medico }}</td>
                                                 <td>
-                                                    @if(Auth::user()->permisos('medico','update'))
+                                                    @if (Auth::user()->accesoRuta('/medico/update'))  
                                                         <button type="button" class="btn btn-success btn-sm" id="editMedico"                
                                                             data-toggle="modal" data-target="#editarMedicoModal{{$fila->id}}">
                                                             <i class="fa fa-edit"></i>
                                                         </button>
                                                         @include('modals.editarMedicoModals')
                                                     @endif
-                                                    @if(Auth::user()->permisos('medico','delete'))
+                                                    @if (Auth::user()->accesoRuta('/medico/delete'))  
                                                         
                                                         @if($fila->estado_medico == 1)                                        
                                                             <a class="btn btn-danger btn-sm"title="Eliminar el medico" href="{{route('medico.delete', ['id' => $fila->id])}}" onclick="

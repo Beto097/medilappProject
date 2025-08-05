@@ -14,6 +14,7 @@
                                 <h6 class="text-center nonecase-font txt-grey">introduzca sus datos a continuación</h6>
                             </div>	
                             @if (count($errors) > 0)
+
                                 <div class="alert alert-danger alert-dismissable alert-style-1">
                                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                                     <i class="zmdi zmdi-block"></i>Algo salio mal..
@@ -28,7 +29,7 @@
                                 <form action="" method="POST" role="form" autocomplete="off">
                                     @csrf
                                     <div class="form-group">
-                                        <label class="control-label mb-10" for="exampleInputEmail_2">Usuario</label>
+                                        <label class="control-label  mb-10" for="exampleInputEmail_2">Usuario</label>
                                         <input type="text" class="form-control" value="{{ old('usuario') }}" name="usuario" required id="exampleInputEmail_2" placeholder="introduzca su nombre de usuario">
                                     </div>
                                     <div class="form-group">
