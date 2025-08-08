@@ -15,6 +15,8 @@ use App\Http\Controllers\certificadoController;
 use App\Http\Controllers\referenciaController;
 use App\Http\Controllers\constanciaController;
 use App\Http\Controllers\archivoController;
+use App\Http\Controllers\ordenlaboratorioController;
+use App\Http\Controllers\resultadoController;
 
 
 Route::get('/', [loginController::class, 'dashboard'])->name('index');
@@ -145,6 +147,35 @@ Route::get("/email/{correo}", [usuarioController::class, 'Correo'])->name("Corre
 Route::get("/login", [loginController::class, 'index'])->name("login.index");
 Route::post("/login", [loginController::class, 'login'])->name("login.login");
 Route::get("/cerrar", [loginController::class, 'cerrar'])->name("login.cerrar");
+
+/*Orden laboratorio*/
+Route::get("/ordenlaboratorio", [ordenlaboratorioController::class, 'index'])->name("ordenlaboratorio.index");
+Route::get("/ordenlaboratorio/create", [ordenlaboratorioController::class, 'create'])->name("ordenlaboratorio.create");
+Route::get("/ordenlaboratorio/create/{id}", [ordenlaboratorioController::class, 'create2'])->name("ordenlaboratorio.create2");
+Route::post("/ordenlaboratorio/create", [ordenlaboratorioController::class, 'insert'])->name("ordenlaboratorio.insert");
+Route::get("/ordenlaboratorio/createnext", [ordenlaboratorioController::class, 'createnext'])->name("ordenlaboratorio.createnext");
+Route::post("/ordenlaboratorio/next", [ordenlaboratorioController::class, 'createnext'])->name("ordenlaboratorio.next");
+Route::get("/ordenlaboratorio/delete/{id}", [ordenlaboratorioController::class, 'delete'])->name("ordenlaboratorio.delete");
+Route::get("/ordenlaboratorio/desbloquear/{id}", [ordenlaboratorioController::class, 'desbloquear'])->name("ordenlaboratorio.desbloquear");
+Route::get("/ordenlaboratorio/update/{id}", [ordenlaboratorioController::class, 'update'])->name("ordenlaboratorio.update");
+Route::post("/ordenlaboratorio/update", [ordenlaboratorioController::class, 'save'])->name("ordenlaboratorio.save");
+Route::post("/ordenlaboratorio/updatenext", [ordenlaboratorioController::class, 'updatenext'])->name("ordenlaboratorio.updatenext");
+Route::get("/consultar/{cedula}", [ordenlaboratorioController::class, 'consultar'])->name("consultar.cedula");
+Route::get("/consultarRegistro/{registro}", [ordenlaboratorioController::class, 'consultarRegistro'])->name("consultar.registro");
+Route::get("/ordenesLaboratorio", [resultadoController::class, 'index'])->name("resultado.index");
+Route::get("/ordenesLaboratorio/ver", [resultadoController::class, 'index'])->name("resultado.ver");
+Route::get("/ordenesLaboratorio/historial", [resultadoController::class, 'historial'])->name("resultado.historial");
+Route::get("/ordenesLaboratorio/examenes/{id}", [resultadoController::class, 'examenes'])->name("ordenLaboratorio.examenes");
+Route::get("/ordenesLaboratorio/resultados/{id}", [resultadoController::class, 'resultados'])->name("ordenLaboratorio.resultados");
+Route::get("/ordenesLaboratorio/resultados1/{id}", [resultadoController::class, 'resultados1'])->name("ordenLaboratorio.resultados1");
+Route::get("/ordenesLaboratorio/verResultados/{id}", [resultadoController::class, 'verResultados'])->name("ordenLaboratorio.ver.resultados");
+Route::post("/ordenesLaboratorio/resultados/{id}", [resultadoController::class, 'insertarResultados'])->name("insertar.resultados");
+Route::get("/ordenesLaboratorio/resultados/update/{id}", [resultadoController::class, 'update'])->name("ordenLaboratorio.update.resultados");
+Route::post("/ordenesLaboratorio/save", [resultadoController::class, 'save'])->name("ordenLaboratorio.save.resultado");
+Route::post("/ordenesLaboratorio/guardar", [resultadoController::class, 'guardar'])->name("ordenLaboratorio.guardar");
+Route::get("/ordenesLaboratorio/examen/eliminar/{id}", [resultadoController::class, 'eliminarExamen'])->name("ordenLaboratorio.examen.eliminar");
+Route::get("/ordenesLaboratorio/examen/terminado/{id}", [resultadoController::class, 'examenTerminado'])->name("ordenLaboratorio.examen.terminado");
+Route::Post("/ordenesLaboratorio/examen/subir", [resultadoController::class, 'subirArchivo'])->name("ordenLaboratorio.examen.subirResultado");
 
 
 Route::get("/pruebaReceta", [consultaController::class, 'prueba']);
