@@ -14,10 +14,12 @@ use App\Http\Controllers\recetaController;
 use App\Http\Controllers\certificadoController;
 use App\Http\Controllers\referenciaController;
 use App\Http\Controllers\constanciaController;
+use App\Http\Controllers\examenController;
+use App\Http\Controllers\caracteristicaController;
 use App\Http\Controllers\archivoController;
 use App\Http\Controllers\ordenlaboratorioController;
 use App\Http\Controllers\resultadoController;
-
+use App\Http\Controllers\tipoexamenController;
 
 Route::get('/', [loginController::class, 'dashboard'])->name('index');
 
@@ -179,3 +181,39 @@ Route::Post("/ordenesLaboratorio/examen/subir", [resultadoController::class, 'su
 
 
 Route::get("/pruebaReceta", [consultaController::class, 'prueba']);
+
+
+/*caracteristica examen*/
+Route::get("/caracteristicaExamen",[caracteristicaController::class,'index'])->name("caracteristica_examen.mostrar");
+Route::get("/caracteristicaExamen/create",[caracteristicaController::class,'create'])->name("caracteristica_examen.create");
+Route::post("/caracteristicaExamen/create",[caracteristicaController::class,'insert'])->name("caracteristica_examen.insert");
+Route::get("/caracteristicaExamen/update/{id}",[caracteristicaController::class,'update'])->name("caracteristica_examen.update");
+Route::post("/caracteristicaExamen/update", [caracteristicaController::class, 'save'])->name("caracteristica_examen.save");
+Route::get("/caracteristicaExamen/delete/{id}", [caracteristicaController::class, 'delete'])->name("caracteristica_examen.delete");
+Route::get("/caracteristicaExamen/desbloquear/{id}", [caracteristicaController::class, 'desbloquear'])->name("caracteristica_examen.desbloquear");
+
+//Rutas Examen por Jahaziel De Salas
+Route::get("/examen", [examenController::class, 'index'])->name("examen.index");
+Route::get("/examen/create", [examenController::class, 'crear'])->name("examen.crear");
+Route::get("/examen/create/{id}", [examenController::class, 'crear2'])->name("examen.crear2");
+Route::get("/examen/create/ordenar/{id}", [examenController::class, 'crear3'])->name("examen.crear3");
+Route::post("/examen/create/ordenar", [examenController::class, 'insert3'])->name("examen.insert3");
+Route::post("/examen/create", [examenController::class, 'insert'])->name("examen.insert");
+Route::post("/examen/create2", [examenController::class, 'insert2'])->name("examen.insert2");
+Route::post("/examen/save", [examenController::class, 'save'])->name("examen.save");
+Route::post("/examen/save2", [examenController::class, 'save2'])->name("examen.save2");
+Route::get("/examen/update/{id}", [examenController::class, 'update'])->name("examen.update");
+Route::get("/examen/update2/{id}", [examenController::class, 'update2'])->name("examen.update2");
+Route::get("/examen/delete/{id}", [examenController::class, 'delete'])->name("examen.delete");
+
+
+/*tipoexamen*/
+Route::get("/tipoexamen", [tipoexamenController::class, 'index'])->name("tipoexamen.index");
+Route::get("/tipoexamen/create", [tipoexamenController::class, 'create'])->name("tipoexamen.create");
+Route::post("/tipoexamen/create", [tipoexamenController::class, 'insert'])->name("tipoexamen.insert");
+Route::get("/tipoexamen/update/{id}", [tipoexamenController::class, 'update'])->name("tipoexamen.update");
+Route::post("/tipoexamen/update", [tipoexamenController::class, 'save'])->name("tipoexamen.save");
+Route::get("/tipoexamen/delete/{id}", [tipoexamenController::class, 'delete'])->name("tipoexamen.delete");
+Route::get("/tipoexamen/desbloquear/{id}", [tipoexamenController::class, 'desbloquear'])->name("tipoexamen.desbloquear");
+
+
