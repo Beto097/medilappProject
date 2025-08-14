@@ -1,4 +1,4 @@
-@extends('plantillas.plantilla')
+@extends('plantilla.plantillaDT')
 
 @section('titulo')
     Crear Orden
@@ -45,7 +45,7 @@
     
     <div id="cardcrear" class="card col-lg-8">
         <div class="card-body">
-            <form action="{{route('orden_laboratorio.insert')}}" method="POST" role="form" autocomplete="off">
+            <form action="{{route('ordenlaboratorio.insert')}}" method="POST" role="form" autocomplete="off">
                 @csrf
 
                 <div class="form-row ">
@@ -150,7 +150,7 @@
                     </div>
 
                     <div class="col-4">
-                        <a href="{{route('orden_laboratorio.index')}}" class="btn btn-danger  btn-lg" id="botoncrear"><i class="fas fa-times"></i> Cancelar</a>
+                        <a href="{{route('ordenlaboratorio.index')}}" class="btn btn-danger  btn-lg" id="botoncrear"><i class="fas fa-times"></i> Cancelar</a>
                     </div>
                 
                 </div>

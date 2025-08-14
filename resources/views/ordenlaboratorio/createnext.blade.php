@@ -1,4 +1,4 @@
-@extends('plantillas.plantilla')
+@extends('plantilla.plantillaDT')
 
 @section('titulo')
     Elegir Examen
@@ -42,7 +42,7 @@
     
     <div id="cardcrear" class="card col-lg-10">
         <div class="card-body">
-            <form action="{{ route('orden_laboratorio.next') }}" method="POST" role="form" autocomplete="off">
+            <form action="{{ route('ordenlaboratorio.next') }}" method="POST" role="form" autocomplete="off">
                 @csrf
 
                 @foreach($tipo_examen as $tipo)
@@ -75,7 +75,7 @@
             	<br>
                 <div class="row justify-content-around"> 
                     <div class="col-3"> 
-                    <a href="{{route('orden_laboratorio.update',['id'=>$nueva_orden])}}" class="btn btn-secondary btn-lg" id="botoncrear">Atras</a>
+                    <a href="{{route('ordenlaboratorio.update',['id'=>$nueva_orden])}}" class="btn btn-secondary btn-lg" id="botoncrear">Atras</a>
                     </div>
                     <div class="col-3"> 
                         <button type="submit" id="botoncrear" class="btn btn-primary btn-lg"><i class="fas fa-check"></i> Guardar</button>
@@ -90,7 +90,7 @@
 
 @endsection
 @section('footer')
-    @include('plantillas.footer')
+    @include('plantilla.footer')
 @section('contenidofooter')
 @show
 @endsection

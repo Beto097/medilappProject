@@ -26,7 +26,7 @@
         <div id="opcionesmedico" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
                 <h6 class="collapse-header">Opciones Orden:</h6>
-                <a class="collapse-item" href="{{ route('orden_laboratorio.index') }}">Lista de Ordenes</a>
+                <a class="collapse-item" href="{{ route('ordenlaboratorio.index') }}">Lista de Ordenes</a>
                 <!-- <a class="collapse-item" href="{{ route('usuario.create') }}">Insertar Usuario</a> -->
                 <!-- <a class="collapse-item" href="forgot-password.html">Forgot Password</a> -->
             </div>
@@ -58,7 +58,7 @@
     
     <div id="cardcrear" class="card col-lg-11">
         <div class="card-body">
-            <form action="{{ route('orden_laboratorio.updatenext') }}" method="POST" role="form" autocomplete="off">
+            <form action="{{ route('ordenlaboratorio.updatenext') }}" method="POST" role="form" autocomplete="off">
                 @csrf
 
                 @foreach($tipo_examen as $tipo)
@@ -98,7 +98,7 @@
            
                 <div class="row justify-content-around"> 
                     <div class="col-3"> 
-                    <a href="{{route('orden_laboratorio.update',['id'=>$id_orden_laboratorio])}}" class="btn btn-secondary btn-lg" id="botoncrear">Atras</a>
+                    <a href="{{route('ordenlaboratorio.update',['id'=>$id_orden_laboratorio])}}" class="btn btn-secondary btn-lg" id="botoncrear">Atras</a>
                     </div>
                     <div class="col-3"> 
                         <button type="submit" id="botoncrear" class="btn btn-primary btn-lg"><i class="fas fa-check"></i> Guardar</button>
