@@ -92,23 +92,25 @@
         <div class="col-sm-12">
             <div class="panel panel-default card-view">
                 <div class="panel-heading">
-                    <div class="pull-left">
-                        <h6 class="panel-title txt-dark">Pacientes</h6>
-                    </div>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="panel-wrapper collapse in">
-                    <div class="panel-body">
-                        <div class="table-wrap">
-                            <div class="table-responsive">
-                                <div class="row" style="margin-bottom: 15px;">
+                    
+                    <div class="row" style="margin-bottom: 15px;">
+                        <div class="pull-left  col-md-6">
+                            <h6 class="panel-title txt-dark">Pacientes</h6>
+                        </div>
                                     <div class="col-md-4">
                                         <input type="text" id="customSearch" class="form-control" placeholder="Buscar paciente...">
                                     </div>
                                     <div class="col-md-2">
                                         <button id="customSearchBtn" class="btn btn-primary">Buscar</button>
                                     </div>
-                                    </div>
+                                </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="panel-wrapper collapse in">
+                    <div class="panel-body">
+                        <div class="table-wrap">
+                            <div class="table-responsive">
+                                
                                 <table id="datable_1" class="table table-hover display  pb-30" cellspacing="0"  style="width:100%">
                                     <thead>
                                         <tr>
