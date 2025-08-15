@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use Illuminate\Support\Facades\DB;
 use App\Models\medico;
+use App\Models\rol;
+use App\Models\User;
+use App\Models\sucursal;
 
 use Session;
 
@@ -26,54 +29,73 @@ class medicoController extends Controller
             } else {
                 $resultado = medico::where('estado_medico',1)->get(); 
             }
-
-            return view ("medico.index", ["resultado"=>$resultado]);
+            $sucursales = sucursal::where('estado_sucursal',1)->get();
+            return view ("medico.index", ["resultado"=>$resultado,'sucursales'=>$sucursales]);
             
         }
 
         return redirect(route('index'));
     }
 
-    public function insert(Request $request){ 
-        
-        if (!Auth::user()) {
-            Session::put('url', url()->current());    
-            return redirect(route('login.index'));
+    public function insert(Request $request)
+    {
+        // 1. Verificar autenticación
+        if (!Auth::check()) {
+            Session::put('url', url()->current());
+            return redirect()->route('login.index');
         }
 
-        if(Auth::user()->accesoRuta('/medico/create')){
-            
-            $existe = medico::where('numero_registro',$request->txtNumero)->count();
-            
-            if($existe == 1){
-                return back()->withInput()->withErrors(['status' => "Este medico ya esta registrado" ]); 
-            }else{           
-
-                $obj_medico = new medico();
-                $obj_medico->numero_registro=$request->txtNumero;
-                $obj_medico->nombre_medico = strtoupper($request->txtNombre);
-                $obj_medico->email_medico = strtolower($request->txtEmail);
-                $obj_medico->telefono_medico = $request->txtTelefono;
-                $obj_medico->save();
-                
-                if($request->esModal){
-                    if($request->esModal==2){
-                        return redirect()->back()->with(['txtCedula'=>$request->txtCedula,'txtRegistro'=>$obj_medico->numero_registro]);
-                    }
-                    if($request->esModal==3){
-                        return redirect(route('ordenlaboratorio.create'))->with(['txtCedula'=>$request->txtCedula,'txtRegistro'=>$obj_medico->numero_registro]);
-                    }
-                }
-        
-                return redirect(route('medico.index'))->withErrors(['status' => "Se creó el medico " .$obj_medico->nombre_medico ]);
-            }
+        // 2. Verificar acceso
+        if (!Auth::user()->accesoRuta('/medico/create')) {
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta función."]);
         }
 
-        return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);              
+        // 3. Validar datos
+        $request->validate([
+            'txtNumero'      => 'required|string|max:50|unique:medico,numero_registro',
+            'txtCedula'      => 'required|string|max:50|unique:usuario,nombre_usuario',
+            'txtNombre'      => 'required|string|max:100',
+            'txtApellido'    => 'required|string|max:100',
+            'txtEmail'       => 'required|email|max:150|unique:medico,email_medico|unique:usuario,email_usuario',
+            'txtTelefono'    => 'nullable|string|max:20',
+            'txtPassword'    => 'required|string|min:6',
+            'selectSucursal' => 'required|exists:sucursal,id',
+            'txtFFin'        => 'nullable|date',
+        ]);
 
-        
-        
-        
+        try {
+            DB::transaction(function () use ($request) {
+                // Obtener rol Doctor
+                $rol = Rol::where('nombre_rol', 'Médico')->firstOrFail();
+
+                // Crear médico
+                $medico = medico::create([
+                    'numero_registro' => $request->txtNumero,
+                    'cedula_medico'   => $request->txtCedula,
+                    'nombre_medico'   => strtoupper($request->txtNombre . ' ' . $request->txtApellido),
+                    'email_medico'    => strtolower($request->txtEmail),
+                    'telefono_medico' => $request->txtTelefono,
+                    'estado_medico'        => '1',
+                ]);
+
+                // Crear usuario
+                User::create([
+                    'primer_nombre_usuario' => $request->txtNombre,
+                    'apellido_usuario'      => $request->txtApellido,
+                    'nombre_usuario'        => $request->txtCedula,
+                    'email_usuario'         => strtolower($request->txtEmail),
+                    'password_usuario'      => md5($request->txtPassword),
+                    'rol_id'                => $rol->id,
+                    'sucursal_id'           => $request->selectSucursal,
+                    'fecha_fin'             => $request->txtFFin,
+                    'estado_usuario'        => '1',
+                ]);
+            });
+
+            return redirect()->back()->withErrors('status', 'Médico creado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['danger' => 'Ocurrió un error: ' . $e->getMessage()]);
+        }
     }
 
     public function update($id){
@@ -179,5 +201,37 @@ class medicoController extends Controller
         }
 
         return $valor;
+    }
+
+    public function habilitar(Request $request)
+    {
+
+        // 1. Verificar autenticación
+        if (!Auth::check()) {
+            Session::put('url', url()->current());
+            return redirect()->route('login.index');
+        }
+
+        // 2. Verificar acceso
+        if (!Auth::user()->accesoRuta('/medico/dias')) {
+            return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta función."]);
+        }
+
+        $usuario = User::findOrFail($request->txtId);
+
+        if ($usuario->password_usuario == $request->txtPassword) {
+            $contrasena = $request->txtPassword;
+        } else {
+            $contrasena = md5($request->txtPassword);
+        }
+        
+        $usuario->update([
+            'password_usuario'  => $contrasena,
+            'estado_usuario'    => $request->txtEstado,
+            'sucursal_id'       => $request->selectSucursal,
+            'fecha_fin'         => $request->txtFFin,
+        ]);
+
+        return redirect()->back()->withErrors(['status' => 'Médico habilito correctamente.']);
     }
 }

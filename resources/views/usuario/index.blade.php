@@ -79,6 +79,13 @@
                                                         </button>
                                                         @include('modals.editarUsuarioModals')
                                                     @endif
+                                                    @if (Auth::user()->accesoRuta('/medico/dias'))  
+                                                        <button type="button" class="btn btn-success btn-sm"                 
+                                                            data-toggle="modal" data-target="#habilitarMedicoModal{{$fila->id}}">
+                                                            <i class="fa fa-edit"></i>
+                                                        </button>
+                                                        @include('modals.habilitarUsuarioModals')
+                                                    @endif
                                                     @if (Auth::user()->accesoRuta('/usuario/delete'))  
                                                         
                                                         @if($fila->estado_usuario == 1)                                        
@@ -100,6 +107,8 @@
                                         <tr>                                                                                   
                                             <th>Id</th>                                            
                                             <th>Nombre</th>
+                                            <th>Apellido</th>
+                                            <th>Usuario</th>
                                             <th>Email</th>
                                             <th>Rol</th>
                                             <th>Sucursal</th>
@@ -120,6 +129,8 @@
 
     ,"order": [[0,'desc']]
      ,"columns": [      
+      null,
+      null,
       null,
       null,
       null,

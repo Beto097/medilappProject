@@ -984,7 +984,7 @@ button.fc-agendaWeek-button, .fc-prev-button, .fc-next-button, .fc-today-button 
     button.btn-primary.fc-month-button.fc-state-default.fc-corner-left:focus,
     .dt-buttons button.fc-month-button.fc-state-default.fc-corner-left.dt-button:focus,
     button.btn-primary.fc-agendaWeek-button:focus, .btn-primary.fc-prev-button:focus, .btn-primary.fc-next-button:focus, .btn-primary.fc-today-button:focus {
-      background: #10978d;
+      background: #4A63B5;
       border: solid 1px rgba(15, 197, 187, 0.1); }
   .btn.btn-success, .wizard > .actions a.btn-success, .wizard > .actions a.fc-prev-button, .wizard > .actions a.fc-next-button, .wizard > .actions a.fc-today-button, .dt-buttons .btn-success.dt-button,
   .dt-buttons button.dt-button.fc-agendaWeek-button, .dt-buttons .dt-button.fc-prev-button, .dt-buttons .dt-button.fc-next-button, .dt-buttons .dt-button.fc-today-button, .tablesaw-sortable th.tablesaw-sortable-head button.btn-success,

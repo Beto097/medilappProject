@@ -26,7 +26,15 @@ class usuarioController extends Controller
             if (Auth::user()->rol->tipo_rol == 1) {
                 $resultado = User::get();  
             } else {
-                $resultado = User::where('estado_usuario',1)->get(); 
+                $rol = Rol::where('nombre_rol', 'Recepción')->firstOrFail();
+                $rol_medico = Rol::where('nombre_rol', 'Médico')->firstOrFail();
+                if (Auth::user()->rol_id==$rol->id) {
+                    $resultado = User::where('rol_id',$rol_medico->id)->get(); 
+                }else{
+                     $resultado = User::where('estado_usuario',1)->get(); 
+                }
+                
+               
             }            
 
             return view ("usuario.index", ["resultado"=>$resultado]);

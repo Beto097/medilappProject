@@ -13,12 +13,17 @@
                                 @csrf
                                 <div class="row">
                                     <div class="form-group col-md-6 col-sm-12 col-xs-12">
-                                        <label for="inputEmail4">Nombre del Doctor</label>
+                                        <label for="inputEmail4">Nombre</label>
                                         <input type="text" class="form-control" id="inputEmail4" placeholder="Ejemplo:Juan" name="txtNombre"
                                             required>
                                     </div>
+                                    <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                        <label for="inputEmail4">Apellido</label>
+                                        <input type="text" class="form-control" id="inputEmail4" placeholder="Ejemplo:Juan" name="txtApellido"
+                                            required>
+                                    </div>
                                     <div class="form-group col-md-6 col-sm-12 col-xs-12" id="registroDiv">
-                                        <label for="">Registro del Medico:</label>
+                                        <label for="">Registro del Medico</label>
                                         <input type="text"
                                             class="form-control" name="txtNumero" id="txtRegistro2" aria-describedby="helpId" 
                                             onfocusout="validarRegistro2()" placeholder="Ingrese el numero de registro del Medico" required
@@ -26,10 +31,47 @@
                                         <small id="AlertaRegistro2" class="form-text text-muted"></small>
                                         <small id="AlertaMedico2" class="form-text text-muted"></small>
                                     </div>
+                                    <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                        <label for="">Cedula</label>
+                                        <input type="text"
+                                            class="form-control" name="txtCedula" aria-describedby="helpId" 
+                                            onfocusout="validarCedulaD()" placeholder="Ingrese la cedula del doctor." required
+                                            value="">                                        
+                                        <small id="AlertaDoctor" class="form-text text-muted"></small>
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                        <label for="inputPassword4">Password</label>
+                                        <input type="password" class="form-control" id="txtPassword" placeholder="" 
+                                            value="" name="txtPassword" required>                            
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-6 col-xs-12">                                        
+                                        <div class="input-group mb-3">
+                                            <label for="">Seleccione una Sucursal</label>                                                                           
+                                            <div class="col-sm-12">
+                                                <select class="form-control" name="selectSucursal" id="">
+                                                    <option value='null' selected>Sin Sucursal</option>
+                                                    @foreach($sucursales as $sucursal)                                                
+                                                    
+                                                        <option value="{{$sucursal->id}}" @if (old('selectSucursal')==$sucursal->id) selected @endif>{{$sucursal->nombre_sucursal}}</option>                                               
+                                                    
+                                                    @endforeach
+                                                    
+                                                    
+                                                </select>
+                                            </div>
+                                        </div>
+                                            
+                                        
+                                    </div>
+                                    <div class="form-group col-md-6 col-sm-12 col-xs-12">
+                                        <label class="control-label mb-10 text-left">Fecha de Activacion</label>
+                                        <input type="date" class="form-control" id="txtFFin" name="txtFFin"  
+                                            value="" >
+                                    </div>
                                     <div class="form-group col-md-12 col-sm-12 col-xs-12">
                                         <label class="control-label mb-10">Correo</label>
                                         <div class="input-group mb-15"> <span class="input-group-addon">@</span>
-                                            <input type="email" placeholder="Ejemplo:juan@gmail.com" name="txtEmail" class="form-control">
+                                            <input type="email" placeholder="Ejemplo:juan@gmail.com" name="txtEmail" class="form-control" required>
                                         </div>
                                     </div>
                                     <div class="form-group col-md-12 col-sm-12 col-xs-12">

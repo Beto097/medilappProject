@@ -10,6 +10,7 @@ use App\Models\paciente;
 use App\Models\consulta;
 use App\Models\orden_laboratorio;
 use App\Models\examen_orden_laboratorio;
+use Illuminate\Support\Facades\Hash;
 
 use Carbon\Carbon;
 use Session;
@@ -38,40 +39,54 @@ class loginController extends Controller
         return view('login.index');
     }
 
-    Public function login(Request $request) {
+    public function login(Request $request)
+    {
+        // 1. Validar datos de entrada
+        $request->validate([
+            'usuario'  => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-        $nombre=$request->usuario;
-        $contraseña=$request->password;  
-        
-        $usuario=User::where('nombre_usuario',$nombre)->first();
-        
-        if ($usuario->estado_usuario==0) {
+        $nombre = $request->usuario;
+        $contraseña = $request->password;
 
-            return redirect()->back()->withErrors(['danger' => "no puede ingresar al sistema comuniquese con el administrador"])->withInput($request->all());
+        // 2. Buscar usuario
+        $usuario = User::where('nombre_usuario', $nombre)->first();
+
+        if (!$usuario) {
+            return back()->withErrors(['danger' => "El usuario es incorrecto."])
+                        ->withInput($request->only('usuario'));
         }
-        
-        if ($usuario) {
 
-            
+        // 3. Verificar fecha de fin de activación
+        if (!empty($usuario->fecha_fin) && Carbon::parse($usuario->fecha_fin)->isPast()) {
+            $usuario->estado_usuario = 0;
+            $usuario->save();
+        }
 
-            if ($usuario['password_usuario']==md5($contraseña)) {
+        // 3. Validar estado del usuario
+        if ($usuario->estado_usuario == 0) {
+            return back()->withErrors(['danger' => "No puede ingresar al sistema. Comuníquese con el administrador."])
+                        ->withInput($request->only('usuario'));
+        }
 
-                Auth::login($usuario);
+        // 4. Verificar contraseña
+        // Si tu DB todavía guarda MD5, toca mantener temporalmente ese check
+        if (Hash::check($contraseña, $usuario->password_usuario) || $usuario->password_usuario === md5($contraseña)) {
+            Auth::login($usuario);
 
-                if (Session::get('url')) {
-                       
-                    return redirect(Session::get('url'));
-                } 
-                
-                return redirect()->back()->withErrors(['danger' => "No tienes acceso a esta funcion." ]);
+            // Redirigir a URL previa si existe
+            if (Session::has('url')) {
+                $url = Session::pull('url'); // además limpia la variable
+                return redirect($url);
             }
-                
-            return redirect()->back()->withErrors(['danger' => "Contraseña incorrecta."])->withInput($request->all());
 
+            // Redirigir al dashboard o página principal
+            return redirect()->route('index'); 
         }
 
-        return redirect()->back()->withErrors(['danger' => "El usuario es incorrecto."])->withInput($request->all());
-        
+        return back()->withErrors(['danger' => "Contraseña incorrecta."])
+                    ->withInput($request->only('usuario'));
     }
 
     public function cerrar(){

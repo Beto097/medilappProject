@@ -52,6 +52,7 @@ Route::get("/medico/update/{id}", [medicoController::class, 'update'])->name("me
 Route::post("/medico/update", [medicoController::class, 'save'])->name("medico.save");
 Route::get("/medico/delete/{id}", [medicoController::class, 'delete'])->name("medico.delete");
 Route::get("/medico/desbloquear/{id}", [medicoController::class, 'desbloquear'])->name("medico.desbloquear");
+Route::Post("/medico/enable", [medicoController::class, 'habilitar'])->name("medico.enable");
 
 //SUCURSALES
 Route::get("/sucursal", [sucursalController::class, 'index'])->name("sucursal.index");

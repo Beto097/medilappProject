@@ -105,7 +105,7 @@ class pantallaController extends Controller
         if(Auth::user()->accesoRuta('/roles/pantalla/0')){
 
             $pantallas = pantalla::where('padre',0)->where('estado_pantalla',1)->orderBy('orden','ASC')->get();
-            $rol = rol::find($id); 
+            $rol = rol::find($id);     
             $pantallas_rol= $rol->pantallas;
             $roles = rol::orderBy('id', 'ASC')->get();
             $lista_pantallas= array();
