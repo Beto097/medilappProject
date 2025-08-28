@@ -1,4 +1,4 @@
-@extends('plantilla.plantilla')
+@extends('plantilla.plantillaDT')
 
 @section('titulo')
     Crear Orden de Laboratorio
@@ -76,7 +76,7 @@
                                         <small id="AlertaMedico" class="form-text text-muted"></small>
                                     </div>
                                     <div class="col-md-6">
-                                        <button id="btnCrearMedico" type="button" class="btn btn-primary btn-rounded btn-mi-color"               
+                                        <button id="addNewMedico" type="button" class="btn btn-primary btn-rounded btn-mi-color"               
                                                 data-toggle="modal" data-target="#addNewMedicoModal">
                                             <i class="fa fa-plus"></i> Crear Nuevo Médico
                                         </button>
@@ -116,7 +116,7 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <button type="submit" id="botoncrear" class="btn btn-primary btn-rounded btn-mi-color btn-block">
-                                    <i class="fa fa-check"></i> Siguiente
+                                    <i class="fa fa-check"></i> Siguiente: Seleccionar Exámenes
                                 </button>
                             </div>
                             <div class="col-md-6">
@@ -133,7 +133,7 @@
     </div>
     
     @include('modals.PacienteModalsOrden')
-    @include('modals.MedicoModalsOrden')
+    @include('modals.MedicoModals')
     
     <script>
         function listaExterno() {

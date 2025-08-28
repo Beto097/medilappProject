@@ -62,6 +62,9 @@
             // Inicializar la tabla primero
             var table = $('#datable_1').DataTable();
             
+            // Aplicar ordenamiento por fecha (columna 3) descendente sin reinicializar
+            table.order([3, 'desc']).draw();
+            
             // Configurar búsqueda después de que la tabla esté lista
             $('#datable_1').on('init.dt', function () {
                 // Búsqueda dinámica en tiempo real

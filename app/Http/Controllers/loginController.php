@@ -63,13 +63,13 @@ class loginController extends Controller
             $usuario->estado_usuario = 0;
             $usuario->save();
         }
-
+        
         // 3. Validar estado del usuario
         if ($usuario->estado_usuario == 0) {
             return back()->withErrors(['danger' => "No puede ingresar al sistema. Comuníquese con el administrador."])
                         ->withInput($request->only('usuario'));
         }
-
+        
         // 4. Verificar contraseña
         // Si tu DB todavía guarda MD5, toca mantener temporalmente ese check
         if (Hash::check($contraseña, $usuario->password_usuario) || $usuario->password_usuario === md5($contraseña)) {

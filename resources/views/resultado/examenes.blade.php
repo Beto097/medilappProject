@@ -1,7 +1,7 @@
-@extends('plantilla.plantilla')
+@extends('plantilla.plantillaDT')
 
 @section('titulo')
-   Exámenes de Laboratorio
+    Exámenes de Laboratorio
 @endsection
 
 @section('css')
@@ -31,8 +31,6 @@
     Exámenes de Laboratorio
 @endsection
 
-
-
 @section('contenido')
     <div class="container-fluid">
         <!-- Mensajes de error y éxito -->
@@ -60,249 +58,220 @@
             </div>
         @endif      
 
-      
-        
-        <div class="d-flex">
-            <div class="mr-auto p-2 "><p class="mb-4">Este listado muestra los examenes que pertenecen a la orden de laboratorio</a></p></div>
-            
-        </div>
-        
-        <div class="row">
-            <div class="col-md-12 text-center"><h4>Orden de Laboratorio Nº: {{$orden->id}}</h4></div>
-            <div class="col-md-4"><h5>Fecha: {{$orden->fecha_orden}}</h5></div>
-            <div class="col-md-4 text-center"><h5>Paciente: {{$orden->paciente->nombre_paciente}} {{$orden->paciente->apellido_paciente}}</h5></div>
-            <div class="col-md-4 text-right"><h5>Identificacion: {{$orden->paciente->identificacion_paciente}}</h5></div>
-            <div class="col-md-6"><h5>Medico: {{$orden->medico->nombre_medico}}-{{$orden->medico->numero_registro}}</h5></div>
-            <div class="col-md-6 text-right"><h5>Estado: {{$orden->estado_orden_laboratorio}}@if($orden->enviado == '1') <i class="fas fa-paper-plane"></i>@endif</h5></div>
-        </div>
+        <br>
         <div class="d-flex">
             <div class="mr-auto p-2">
-                
+                <p class="mb-4">
+                    Este listado muestra los examenes que pertenecen a la orden de laboratorio
+                </p>
             </div>
-            
-                @if ($permisos['insert']==1)
-                    
-                    @if($orden->estado_orden_laboratorio == 'Terminado')                        
-                       
-                        @if($count == 0)
-                            @foreach ($tipos_examen as $tipo)
-                                <div class="p-2"><a title="Imprimir todos los examenes de..." href="{{ route('imprimir.XGrupo', ['id'=>$orden->id,'tipo' => $tipo->id]) }}" class="btn btn-dark btn-sm btn-icon-split">
-                                    <span class="icon text-white-50">
-                                        <i class="fas fa-print"></i>
-                                    </span>
-                                    <span class="text">{{$tipo->nombre_tipo_examen}}</span>
-                                </a></div>
-                                <button type="button" class="btn btn-primary btn-sm btn-icon-split" id="newMail"                
-                                    data-toggle="modal" data-target="#newMailGroupModal">
-                                    <span class="icon text-white-50">
-                                        <i class="fas fa-paper-plane"></i>
-                                    </span>
-                                    <span class="text">
-                                    Enviar por Correo -{{$tipo->nombre_tipo_examen}}
-                                    </span>
-                                </button>
-                                @include('modals.MailGroupModals')
-                            @endforeach              
-                            
-                        @else
-                            
-                            
-                        @endif
-                        
-                        
-                    @endif
-                                         
-                @endif 
-        
-            
-        </div>  
-        <!-- DataTales Example -->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold">Examenes</h6>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered text-center col-md-12" id="dataTable" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th>Examen</th> 
-                                <th>Estado</th>                                                                                         
-                                <th>Acciones</th>   
-                            </tr>
-                        </thead>
-                        <tfoot>
-                            <tr>
-                                <th>Id</th>
-                                <th>Examen</th>
-                                <th>Estado</th>                                                                                         
-                                <th>Acciones</th>   
-                            </tr>
-                        </tfoot>
-                        <tbody>
-                            @foreach ($resultado as $fila)
-                                @if ($fila->padre<=0)                             
-                                
-                                    <tr>
-                                        <td scope="row ">{{ $fila->id}}</td>
-                                        <td>
-                                            @if (isset($fila->examen))
-                                                {{$fila->examen->nombre_examen}}
-                                            @else
-                                                Sin Examen
-                                            @endif
-                                            
-                                        </td>
-                                        <td>{{$fila->estado_examen}}</td>
-                                        <td>
-                                            
-                                            @if($fila->estado_examen=='Pendiente')                                            
-                                                @if ($permisos['insert']==1)
-                                                    @if ($fila->examen->es_externo==1)
-                                                        <div class="row  justify-content-center">
-                                                            <div class="col-6">
-                                                                <button type="button" class="btn btn-info btn-sm btn-block" id="resultadoSubirArchivo"                
-                                                                    data-toggle="modal" data-target="#resultadoSubirArchivoModals">
-                                                                    
-                                                                    <span class="text">
-                                                                        Subir Resultado                                                                        
-                                                                    </span>
-                                                                </button>                                                                
-                                                            </div>                                                                
-                                                        </div>
-                                                        @include('modals.subirArchivoModals')
-                                                    @else  
-                                                            
-                                                        @if (isset($fila->examen))                                                            
-                                                            @if ($fila->padre==-1)
-                                                                <div class="row  justify-content-center">
-                                                                    <div class="col-6"> 
-                                                                        <a class="btn btn-primary btn-sm btn-block" href="{{ route('ordenLaboratorio.resultados1', ['id' => $fila->id]) }}" role="button">Registrar Resultados</a>
-                                                                    </div>                                                                
-                                                                </div>
-                                                            @else
-                                                                <div class="row  justify-content-center">
-                                                                    <div class="col-6"> 
-                                                                        <a class="btn btn-primary btn-sm btn-block" href="{{ route('ordenLaboratorio.resultados', ['id' => $fila->id]) }}" role="button">Registrar Resultados</a>
-                                                                    </div>                                                                
-                                                                </div>
-                                                            @endif
-                                                        @else
-                                                            <div class="row  justify-content-center">
-                                                                <div class="col-6"> 
-                                                                    <a class="btn btn-danger btn-sm btn-block" href="{{ route('ordenLaboratorio.examen.eliminar', ['id' => $fila->id]) }}" role="button">Eliminar Fila</a>
-                                                                </div>                                                                
-                                                            </div>
-                                                        @endif                                                                 
-                                                    @endif
-                                                @endif
-                                            
-                                            @else                                                     
-
-                                                @if ($permisos['ver']==1)
-                                                     
-                                                    @if ($fila->examen->es_externo==1)
-                                                        
-                                                            @foreach ($fila->resultado as $resultado)
-                                                                                                                               
-                                                                <a class="btn btn-success btn-sm" href="/public/pdf/{{$resultado->valor}}" role="button" target="_blank"><i id="iconoBoton" class="fas fa-eye"></i></a>
-                                                                <button type="button" class="btn btn-primary btn-sm " id="enviarCorreo"                
-                                                                data-toggle="modal" data-target="#newMailModal{{$fila->id}}">
-                                                                <i class="fas fa-paper-plane"></i>
-                                                                
-                                                                </button>                                                                
-                                                                
-                                                                @include('modals.MailModals')
-                                                                
-                                                            @endforeach
-                                                                                                                          
-                                                        
-                                                    @else    
-                                                        @if (isset($fila->examen))                                                                                                                        
-                                                        
-                                                            <a class="btn btn-success btn-sm" title="Ver resultados" href="{{ route('ordenLaboratorio.ver.resultados', ['id' => $fila->id]) }}" class=""><i id="iconoBoton" class="fas fa-eye"></i></a>
-                                                            <a class="btn btn-dark btn-sm" title="Imprimir resultado" href="{{ route('imprimir.resultado', ['id' => $fila->id]) }}" class=""><i id="iconoBoton" class="fas fa-print"></i></a>
-                                                           
-                                                            <button type="button" class="btn btn-primary btn-sm " id="enviarCorreo"                
-                                                            data-toggle="modal" data-target="#newMailModal{{$fila->id}}">
-                                                            <i class="fas fa-paper-plane"></i>
-                                                            
-                                                            </button>                                                                
-                                                            
-                                                            @include('modals.MailModals')                                                       
-                                                                
-                                                            
-                                                            {{-- @if ($fila->orden_laboratorio->enviado == '0' && Session::get('usuario_rol_id')!=\App\Models\rol::select('id')->where('nombre_rol','Paciente')->first()->id)
-                                                                <a class="btn btn-primary" title="Enviar al correo" href="{{ route('enviar.correo', ['id' => $fila->id]) }}" class=""><i id="iconoBoton" class="far fa-paper-plane"></i></a>
-                                                            @endif --}}
-                                                        
-                                                        @else
-                                                            <a class="btn btn-danger btn-sm" href="{{ route('ordenLaboratorio.examen.eliminar', ['id' => $fila->id]) }}" role="button">Eliminar Fila</a>
-                                                        @endif
-                                                    @endif
-                                                        
-                                                @endif
-                                                
-                                                @if($permisos['update']==1)
-                                                    @if ($fila->examen->es_externo!=1)
-                                                            @if (isset($fila->examen))
-                                                            <a class="btn btn-info btn-sm" title="Modificar resultados" href="{{ route('ordenLaboratorio.update.resultados', ['id' => $fila->id]) }}" ><i id="iconoBoton" class="fas fa-edit"></i></a>
-                                                                                                                        
-                                                        @endif
-                                                    @endif  
-                                                        
-                                                @endif
-                                                
-                                            @endif   
-
-                                            
-                                                                            
-                                        </td>
-                                    </tr>
-                                @endif
-                            @endforeach
-                        </tbody>
-                    </table>
+        </div> 
+        <br>
+        <div class="row justify-content-center">
+            <div class="col-md-11-center">
+                <div class="panel panel-default card-view">
+                <div class="panel-heading">
+                        <div class="pull-left">
+                            <h5 class="panel-title txt-dark">Orden de Laboratorio Nº: {{$orden->id}}</h5>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                <div class="panel-body">
+                    <div class="col-md-12 text-center">
+                        <h4 class="txt-dark font-weight-bold">{{$orden->paciente->nombre_paciente}} {{$orden->paciente->apellido_paciente}}</h4>
+                    </div><br><br>
+                    <br>
+                    <div class="col-md-6 text-center">
+                        <h5 class="txt-dark">Fecha: {{$orden->fecha_orden}}</h5>
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <h5 class="txt-dark">Identificacion: {{$orden->paciente->identificacion_paciente}}</h5>
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <h5 class="txt-dark">Medico: {{$orden->medico->nombre_medico}}-{{$orden->medico->numero_registro}}</h5>
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <h5 class="txt-dark">
+                            Estado: {{$orden->estado_orden_laboratorio}}
+                            @if($orden->enviado == '1')
+                                <i class="fas fa-paper-plane"></i>
+                            @endif
+                        </h5>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-    </div>
-@endsection
-
-@section('footer')
-    @include('plantillas.footer')
-@section('contenidofooter')
-
-@show
-@endsection
+                <div class="d-flex">
+                    <div class="mr-auto p-2"></div>
+                    @if (Auth::user()->accesoRuta('/resultado/crear'))
+                        @if($orden->estado_orden_laboratorio == 'Terminado')
+                            @if($count == 0)
+                                @foreach ($tipos_examen as $tipo)
+                                    <div class="p-2">
+                                        <a title="Imprimir todos los examenes de..." href="{{ route('imprimir.XGrupo', ['id'=>$orden->id,'tipo' => $tipo->id]) }}" class="btn btn-dark btn-sm btn-icon-split">
+                                            <span class="icon text-white-50">
+                                                <i class="fas fa-print"></i>
+                                            </span>
+                                            <span class="text">{{$tipo->nombre_tipo_examen}}</span>
+                                        </a>
+                                    </div>
+                                    <button type="button" class="btn btn-primary btn-sm btn-icon-split" id="newMail" data-toggle="modal" data-target="#newMailGroupModal">
+                                        <span class="icon text-white-50">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </span>
+                                        <span class="text">
+                                            Enviar por Correo -{{$tipo->nombre_tipo_examen}}
+                                        </span>
+                                    </button>
+                                    @include('modals.MailGroupModals')
+                                @endforeach              
+                            @else
+                                {{-- Otro contenido si $count != 0 --}}
+                            @endif
+                        @endif
+                    @endif 
+                </div>  
+                <!-- DataTales Example -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold">Examenes</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="datable_1" class="table table-hover display pb-30" cellspacing="0" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Examen</th> 
+                                        <th>Estado</th>                                                                                         
+                                        <th>Acciones</th>   
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Examen</th>
+                                        <th>Estado</th>                                                                                         
+                                        <th>Acciones</th>   
+                                    </tr>
+                                </tfoot>
+                                <tbody>
+                                    @foreach ($resultado as $fila)
+                                        @if ($fila->padre<=0)                             
+                                            <tr>
+                                                <td scope="row">{{ $fila->id}}</td>
+                                                <td>
+                                                    @if (isset($fila->examen))
+                                                        {{$fila->examen->nombre_examen}}
+                                                    @else
+                                                        Sin Examen
+                                                    @endif
+                                                </td>
+                                                <td>{{$fila->estado_examen}}</td>
+                                                <td>
+                                                    @if($fila->estado_examen=='Pendiente')                                            
+                                                        @if (Auth::user()->accesoRuta('/resultado/crear'))
+                                                            @if ($fila->examen->es_externo==1)
+                                                                <div class="text-center">
+                                                                    <button type="button" class="btn btn-info btn-sm font-weight-bold" id="resultadoSubirArchivo" data-toggle="modal" data-target="#resultadoSubirArchivoModals" style="min-width: 100px;">
+                                                                        <i class="fa fa-cloud-upload" aria-hidden="true"></i> Subir
+                                                                    </button>
+                                                                </div>
+                                                                @include('modals.subirArchivoModals')
+                                                            @else  
+                                                                @if (isset($fila->examen))                                                            
+                                                                    @if ($fila->padre==-1)
+                                                                        <div class="text-center">
+                                                                            <button type="button" class="btn btn-primary btn-sm font-weight-bold" data-toggle="modal" data-target="#RegistrarResultadoModal{{$fila->id}}" style="min-width: 100px;">
+                                                                                <i class="fa fa-pencil" aria-hidden="true"></i> Registrar
+                                                                            </button>
+                                                                        </div>
+                                                                    @else
+                                                                        <div class="text-center">
+                                                                            <button type="button" class="btn btn-primary btn-sm font-weight-bold" data-toggle="modal" data-target="#RegistrarResultadoModal{{$fila->id}}" style="min-width: 100px;">
+                                                                                <i class="fa fa-pencil" aria-hidden="true"></i> Registrar
+                                                                            </button>
+                                                                        </div>
+                                                                        @include('modals.RegistrarResultadoModal')
+                                                                    @endif
+                                                                @else
+                                                                    <div class="text-center">
+                                                                        <a class="btn btn-danger btn-sm font-weight-bold" href="{{ route('ordenLaboratorio.examen.eliminar', ['id' => $fila->id]) }}" role="button" style="min-width: 100px;">
+                                                                            <i class="fa fa-trash" aria-hidden="true"></i> Eliminar
+                                                                        </a>
+                                                                    </div>
+                                                                @endif                                                                 
+                                                            @endif
+                                                        @endif
+                                                    @else                                                     
+                                                        @if (Auth::user()->accesoRuta('/resultado/ver'))
+                                                            @if ($fila->examen->es_externo==1)
+                                                                <div class="text-center">
+                                                                    @foreach ($fila->resultado as $resultado)
+                                                                        <a class="btn btn-success btn-sm mr-1 font-weight-bold" href="/public/pdf/{{$resultado->valor}}" role="button" target="_blank" title="Ver resultado">
+                                                                            <i class="fa fa-eye" aria-hidden="true"></i>
+                                                                        </a>
+                                                                        <button type="button" class="btn btn-primary btn-sm font-weight-bold" id="enviarCorreo" title="Enviar por correo" data-toggle="modal" data-target="#newMailModal{{$fila->id}}">
+                                                                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                                                                        </button>                                                                
+                                                                        @include('modals.MailModals')
+                                                                    @endforeach
+                                                                </div>
+                                                            @else    
+                                                                @if (isset($fila->examen))
+                                                                    <div class="text-center">                                                                                                                      
+                                                                        <a class="btn btn-success btn-sm mr-1 font-weight-bold" title="Ver resultados" href="{{ route('ordenLaboratorio.ver.resultados', ['id' => $fila->id]) }}">
+                                                                            <i class="fa fa-eye" aria-hidden="true"></i>
+                                                                        </a>
+                                                                        <a class="btn btn-dark btn-sm mr-1 font-weight-bold" title="Imprimir resultado" href="{{ route('imprimir.resultado', ['id' => $fila->id]) }}">
+                                                                            <i class="fa fa-print" aria-hidden="true"></i>
+                                                                        </a>
+                                                                        <button type="button" class="btn btn-primary btn-sm font-weight-bold" id="enviarCorreo" title="Enviar por correo" data-toggle="modal" data-target="#newMailModal{{$fila->id}}">
+                                                                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                                                                        </button>                                                                
+                                                                        @include('modals.MailModals')
+                                                                    </div>
+                                                                @else
+                                                                    <div class="text-center">
+                                                                        <a class="btn btn-danger btn-sm font-weight-bold" href="{{ route('ordenLaboratorio.examen.eliminar', ['id' => $fila->id]) }}" role="button" title="Eliminar fila" style="min-width: 100px;">
+                                                                            <i class="fa fa-trash" aria-hidden="true"></i> Eliminar
+                                                                        </a>
+                                                                    </div>
+                                                                @endif
+                                                            @endif
+                                                        @endif
+                                                        @if(Auth::user()->accesoRuta('/resultado/crear'))
+                                                            @if ($fila->examen->es_externo!=1)
+                                                                @if (isset($fila->examen))
+                                                                    <a class="btn btn-info btn-sm" title="Modificar resultados" href="{{ route('ordenLaboratorio.update.resultados', ['id' => $fila->id]) }}">
+                                                                        <i id="iconoBoton" class="fas fa-edit"></i>
+                                                                    </a>
+                                                                @endif
+                                                            @endif  
+                                                        @endif
+                                                    @endif                  
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                </div> <!-- Cierre del panel -->
+            </div> <!-- Cierre del col-lg-10 -->
+        </div> <!-- Cierre del row justify-content-center -->
+    </div> <!-- Cierre del container-fluid -->
 @endsection
 
 @section('footer')
     @include('plantilla.footer')
+@section('contenidofooter')
+@show
 @endsection
 
 @section('js')
 <script>
     $(document).ready(function() {
-        // Configuración de DataTables
-        $('#dataTable').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
-            },
-            "pageLength": 15,
-            "lengthMenu": [15, 30, 50, 100],
-            "responsive": true,
-            "columnDefs": [
-                {
-                    "targets": [-1], // Última columna (acciones)
-                    "orderable": false,
-                    "searchable": false
-                }
-            ]
-        });
-
         // Inicializar tooltips
         $('[data-toggle="tooltip"]').tooltip();
     });

@@ -161,7 +161,7 @@
     @include('modals.MedicoModalsOrden')
 @endsection
 @section('footer')
-    @include('plantillas.footer')
+    @include('plantilla.footer')
 @section('contenidofooter')
 @show
 @endsection

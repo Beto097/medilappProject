@@ -22,7 +22,7 @@
         <div class="top-nav-search collapse pull-left">
             <div class="input-group text-center" style="background-color: #fff; border-radius: 25px; padding: 6px 40px;">
                 <label id="reloj-local" style="
-                    font-family: 'Open Sans', sans-serif;
+                    font-family: 'Poppins', sans-serif;
                     font-size: 1em;
                     color: #333;
                     font-weight: 600;

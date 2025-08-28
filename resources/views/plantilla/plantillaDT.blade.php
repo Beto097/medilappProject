@@ -76,7 +76,7 @@
 	<script src="{{asset('dist/js/init.js')}}"></script>
 	<script>
 		var table = $('#datable_1').DataTable({
-			 searching: false,
+			 searching: true,
 			"language": {
 				
 				"processing": "Procesando...",
@@ -265,6 +265,7 @@
 				lastValue = '';
 				// Opcional: puedes recargar los 100 primeros pacientes aquí si quieres
 			}
+			
 		});
 	</script>
 	@yield('script')

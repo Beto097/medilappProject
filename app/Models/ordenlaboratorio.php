@@ -50,4 +50,17 @@ class ordenlaboratorio extends Model
     {
         return $this->hasMany(examen_orden_laboratorio::class, 'ordenlaboratorio_id');
     }
+
+    public function examen()
+    {
+        return $this->belongsTo('App\Models\examen');
+    }
+        public function tipo_examen()
+    {
+        return $this->belongsTo('App\Models\tipo_examen');
+    }
+    public function examen_orden_laboratorios()
+    {
+        return $this->hasMany('App\Models\examen_orden_laboratorio');
+    }
 }

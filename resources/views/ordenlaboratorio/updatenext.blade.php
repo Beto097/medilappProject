@@ -1,4 +1,4 @@
-@extends('plantillas.plantilla')
+@extends('plantilla.plantilla')
 
 @section('titulo')
     Actualizar Lista de Examen
@@ -113,7 +113,7 @@
 
 @endsection
 @section('footer')
-    @include('plantillas.footer')
+    @include('plantilla.footer')
 @section('contenidofooter')
 @show
 @endsection

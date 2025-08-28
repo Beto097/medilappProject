@@ -13,7 +13,8 @@ use App\Models\rol;
 use App\Models\examen;
 use App\Notifications\notificacionsOrdenes;
 use App\Models\tipo_examen;
-use App\Models\examen_ordenlaboratorio;
+use App\Models\examen_orden_laboratorio;
+use App\Models\sucursal;
 use Session; // Agregar 
 use Carbon\Carbon;
 
@@ -56,7 +57,10 @@ class ordenLaboratorioController extends Controller
                 $externos = User::where('rol_id', $rol->id)->get();
             }
             
-            return view("ordenLaboratorio.create", ['externos' => $externos]);
+            // Obtener sucursales activas para el modal de médicos
+            $sucursales = sucursal::where('estado_sucursal', 1)->get();
+            
+            return view("ordenLaboratorio.create", ['externos' => $externos, 'sucursales' => $sucursales]);
         }           
           
         return redirect(route('index'));
@@ -115,6 +119,13 @@ class ordenLaboratorioController extends Controller
             $tipo_examen = tipo_examen::get();
             $caracteristica_examen = examen::where('estado_examen',1)->get();
             
+            // Debug temporal - remover después
+            \Log::info('Debug Orden Laboratorio:', [
+                'tipo_examen_count' => $tipo_examen->count(),
+                'caracteristica_examen_count' => $caracteristica_examen->count(),
+                'nueva_orden' => $nueva_orden
+            ]);
+            
             return view ("ordenLaboratorio.createnext", ["tipo_examen"=>$tipo_examen,"caracteristica_examen"=>$caracteristica_examen, "nueva_orden"=>$nueva_orden]);
         }
         
@@ -136,7 +147,7 @@ class ordenLaboratorioController extends Controller
                 
                 if($examen_1->padre>0){
                     if (empty($conteo[$examen_1->padre])) {
-                        $obj_orden_examen = new examen_ordenlaboratorio ();
+                        $obj_orden_examen = new examen_orden_laboratorio ();
                         $obj_orden_examen->ordenlaboratorio_id = $request->txtNueva_Orden;
                         $obj_orden_examen->examen_id = $examen_1->padre;
                         $obj_orden_examen->padre=-1;
@@ -146,7 +157,7 @@ class ordenLaboratorioController extends Controller
                    $conteo[$examen_1->padre] =  1;
                 }
                 
-                $obj_orden_examen = new examen_ordenlaboratorio ();
+                $obj_orden_examen = new examen_orden_laboratorio ();
                 $obj_orden_examen->ordenlaboratorio_id = $request->txtNueva_Orden;
                 $obj_orden_examen->examen_id = $examen;
                 $obj_orden_examen->estado_examen = "Pendiente";
@@ -180,7 +191,7 @@ class ordenLaboratorioController extends Controller
                             });
                 }
             }
-
+            
             return redirect (route("ordenlaboratorio.index"));
         }
         
@@ -247,17 +258,43 @@ class ordenLaboratorioController extends Controller
             $obj_ordenlaboratorio->usuario_id = Auth::id();
             $obj_ordenlaboratorio->estado_orden_laboratorio = "Pendiente";
             $obj_ordenlaboratorio->save();
-            // $nueva_orden = $obj_ordenlaboratorio->id;
-            $resultados = examen_ordenlaboratorio::where("ordenlaboratorio_id",$obj_ordenlaboratorio->id)->get();
-            $tipo_examen = tipo_examen::get();
+            
+            // Redirect to the updatenext view with the order ID
+            return redirect()->route('ordenlaboratorio.updatenext.view', ['id' => $obj_ordenlaboratorio->id]);
+        }
+        
+        return redirect(route('index'));
+    }
 
-            $examenes = examen::get();
-            $lista_examen = array();
-            foreach($resultados as $resultado){
-                array_push($lista_examen,$resultado->examen_id);
+    public function showUpdatenext($id){
+        if (!Auth::user()) {
+            Session::put('url', url()->current());    
+            return redirect(route('login.index'));
+        }
+
+        if(Auth::user()->accesoRuta('/ordenlaboratorio/update')){
+            
+            $obj_ordenlaboratorio = ordenlaboratorio::find($id);
+            
+            if (!$obj_ordenlaboratorio) {
+                return redirect(route('ordenlaboratorio.index'))->with('error', 'Orden de laboratorio no encontrada.');
             }
             
-            return view ("ordenlaboratorio.updatenext",  ["lista_examenes"=>$lista_examen, "examenes"=>$examenes, "tipo_examen"=>$tipo_examen, "id_ordenlaboratorio"=>$obj_ordenlaboratorio->id]);
+            $resultados = examen_orden_laboratorio::where("ordenlaboratorio_id", $obj_ordenlaboratorio->id)->get();
+            $tipo_examen = tipo_examen::get();
+            $examenes = examen::get();
+            $lista_examen = array();
+            
+            foreach($resultados as $resultado){
+                array_push($lista_examen, $resultado->examen_id);
+            }
+            
+            return view ("ordenlaboratorio.updatenext", [
+                "lista_examenes" => $lista_examen, 
+                "examenes" => $examenes, 
+                "tipo_examen" => $tipo_examen, 
+                "id_orden_laboratorio" => $obj_ordenlaboratorio->id
+            ]);
         }
         
         return redirect(route('index'));
@@ -271,12 +308,12 @@ class ordenLaboratorioController extends Controller
 
         if(Auth::user()->accesoRuta('/ordenlaboratorio/update')){
             
-            DB::table('examen_ordenlaboratorio')->where('ordenlaboratorio_id','=',$request->txtOrdenLaboratorio)->delete() ;
+            DB::table('examen_orden_laboratorio')->where('ordenlaboratorio_id','=',$request->txtOrdenLaboratorio)->delete() ;
 
             foreach($request->examenes_id as $examen){
             
                 
-                $obj_orden_examen = new examen_ordenlaboratorio ();
+                $obj_orden_examen = new examen_orden_laboratorio ();
                 $obj_orden_examen->ordenlaboratorio_id = $request->txtOrdenLaboratorio;
                 $obj_orden_examen->examen_id = $examen;
                 $obj_orden_examen->estado_examen = "Pendiente";
@@ -315,8 +352,8 @@ class ordenLaboratorioController extends Controller
 
         if(Auth::user()->accesoRuta('/ordenlaboratorio/delete')){
             
-            $examenes_total = examen_ordenlaboratorio::where('ordenlaboratorio_id',$id)->count();
-            $examenes_terminados = examen_ordenlaboratorio::where('ordenlaboratorio_id',$id)->where('estado_examen','Terminado')->count();
+            $examenes_total = examen_orden_laboratorio::where('ordenlaboratorio_id',$id)->count();
+            $examenes_terminados = examen_orden_laboratorio::where('ordenlaboratorio_id',$id)->where('estado_examen','Terminado')->count();
             $obj = ordenlaboratorio::find($id);
             if ($examenes_terminados==0) {
                 $obj->estado_orden_laboratorio = "Pendiente";

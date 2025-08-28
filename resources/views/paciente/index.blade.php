@@ -26,7 +26,8 @@
         $(document).ready(function() {
             // Inicializar la tabla primero
             var table = $('#datable_1').DataTable();
-            
+            //DESHABILITAR EL BUSCADOR DE DATABLE
+            $('#datable_1_filter').hide();
             // Configurar búsqueda después de que la tabla esté lista
             $('#datable_1').on('init.dt', function () {
                 // Búsqueda dinámica en tiempo real

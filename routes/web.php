@@ -162,6 +162,7 @@ Route::get("/ordenlaboratorio/delete/{id}", [ordenlaboratorioController::class, 
 Route::get("/ordenlaboratorio/desbloquear/{id}", [ordenlaboratorioController::class, 'desbloquear'])->name("ordenlaboratorio.desbloquear");
 Route::get("/ordenlaboratorio/update/{id}", [ordenlaboratorioController::class, 'update'])->name("ordenlaboratorio.update");
 Route::post("/ordenlaboratorio/update", [ordenlaboratorioController::class, 'save'])->name("ordenlaboratorio.save");
+Route::get("/ordenlaboratorio/updatenext/{id}", [ordenlaboratorioController::class, 'showUpdatenext'])->name("ordenlaboratorio.updatenext.view");
 Route::post("/ordenlaboratorio/updatenext", [ordenlaboratorioController::class, 'updatenext'])->name("ordenlaboratorio.updatenext");
 Route::get("/consultar/{cedula}", [ordenlaboratorioController::class, 'consultar'])->name("consultar.cedula");
 Route::get("/consultarRegistro/{registro}", [ordenlaboratorioController::class, 'consultarRegistro'])->name("consultar.registro");

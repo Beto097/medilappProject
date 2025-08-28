@@ -146,7 +146,8 @@ class resultadoController extends Controller
                 }
             }
             
-            $resultado = examen_orden_laboratorio::where('ordenlaboratorio_id',$id)
+            $resultado = examen_orden_laboratorio::with(['examen.examen_caracteristica_examen.caracteristica_examen', 'examen.tipo_examen'])
+                                                ->where('ordenlaboratorio_id',$id)
                                                 ->where('padre','<',1)
                                                 ->get();
             
@@ -183,6 +184,7 @@ class resultadoController extends Controller
             if(sizeof($lista_examenes)==sizeof($lista_tipo)){
                 $count = 1;
             }
+            
                                
             return view('resultado.examenes', [
                 "resultado" => $resultado,
@@ -307,7 +309,10 @@ class resultadoController extends Controller
             return redirect(route('login.index'));
         }
 
-        if(Auth::user()->accesoRuta('/resultado/insert')){
+        // Debug: Log para ver qué datos llegan
+        \Log::info('Datos del request:', $request->all());
+
+        if(Auth::user()->accesoRuta('/ordenlaboratorio') || Auth::user()->accesoRuta('/resultado/insert')){
             
             $resultado = $request->valores;
             
@@ -380,9 +385,16 @@ class resultadoController extends Controller
 
             return redirect(route('ordenLaboratorio.examenes', ['id' => $examen_orden->ordenlaboratorio_id]))
                 ->with('success', 'Se guardaron los resultados del examen');
+        } else {
+            \Log::warning('Usuario sin permisos para insertar resultados', [
+                'user_id' => Auth::user()->id,
+                'user_name' => Auth::user()->name,
+                'requested_route' => '/resultado/insert'
+            ]);
         }
         
-        return redirect(route('index'));
+        \Log::warning('Redirigiendo al dashboard por falta de permisos');
+        return redirect(route('index'))->withErrors(['error' => 'No tiene permisos para realizar esta acción']);
     }
 
     public function verResultados($id){

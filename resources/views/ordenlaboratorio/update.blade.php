@@ -1,4 +1,4 @@
-@extends('plantilla.plantilla')
+@extends('plantilla.plantillaDT')
 
 @section('titulo')
     Actualizar Orden de Laboratorio
